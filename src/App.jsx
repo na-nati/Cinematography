@@ -2,16 +2,16 @@ import React, { useState, useRef, useEffect } from "react";
 import { scroller } from "react-scroll";
 
 // Import your main content sections
-import Hero from "./Components/Hero";
-import About from "./Components/About";
-import Work from "./Components/Work";
-import Contact from "./Components/contact";
-import Skill from "./Components/Skill";
-import Service from "./Components/Service"; // Assuming you have a Service component
+import Hero from "./components/Hero";
+import About from "./components/About";
+import Work from "./components/Work";
+import Contact from "./components/contact";
+import Skill from "./components/Skill";
+import Service from "./components/Service"; // Assuming you have a Service component
 
 // Import the Landing page and the main Navbar
-import Landing from "./Components/Landing";
-import Navbar from "./Components/Navbar";
+import Landing from "./components/Landing";
+import Navbar from "./components/Navbar";
 
 const App = () => {
   const [showLanding, setShowLanding] = useState(true);
