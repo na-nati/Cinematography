@@ -1,0 +1,16 @@
+@font-face {
+    font-family: Mightail;
+    src: url("../src/assets/fonts/mightail.otf");
+}
+
+@font-face {
+    font-family: LinearSans;
+    src: url("../src/assets/fonts/linearsanstrial-regular.otf");
+}
+
+@import "tailwindcss";
+
+@theme {
+    --font-Mightail: Mightail, "sans-serif";
+    --font-LinearSans: LinearSans, "sans-serif";
+}
