@@ -44,7 +44,7 @@ const MenuOverlay = ({ onClose, onNavigate, onReturnToLanding }) => {
     <div
       ref={overlayRef}
       onMouseMove={handleMouseMove}
-      className="fixed top-0 left-0 w-full h-screen bg-black bg-opacity-95 z-40 p-4 sm:p-6 flex flex-col cursor-none"
+      className="fixed top-0 left-0 w-full h-125 bg-black bg-opacity-95 z-40 p-4 sm:p-6 flex flex-col cursor-none"
     >
       {/* Close button */}
       <button
