@@ -112,7 +112,7 @@ const Landing = ({ onComplete = () => {}, targetRef }) => {
     >
       {/* Menu button for Landing page (FaBars/FaTimes) */}
       <button
-        className="absolute top-10 left-1/4 transform -translate-x-1/2 z-30 flex flex-col justify-center items-center w-12 h-12 text-white text-2xl"
+        className="absolute top-6 left-6 sm:top-10 sm:left-1/4 sm:transform sm:-translate-x-1/2 z-30 flex flex-col justify-center items-center w-12 h-12 text-white text-2xl"
         onClick={() => setMenuOpen(!menuOpen)}
       >
         {menuOpen ? <FaTimes className="text-purple-400" /> : <FaBars />}
@@ -122,24 +122,24 @@ const Landing = ({ onComplete = () => {}, targetRef }) => {
       {menuOpen && <MenuOverlay onClose={() => setMenuOpen(false)} onNavigate={handleMenuNavigation} />}
 
       {/* Logo */}
-      <div className="absolute top-10 left-10 z-20">
+      <div className="absolute top-6 right-6 sm:top-10 sm:left-10 z-20">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: isLandingContentVisible ? 1 : 0, y: isLandingContentVisible ? 0 : -20 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className=" font-bold text-4xl text-purple-400 font-Mightail"
+          className="font-bold text-xl sm:text-2xl md:text-4xl text-purple-400 font-Mightail"
         >
           Bernabas Tegegn
         </motion.div>
       </div>
 
       {/* Email Button */}
-      <div className="absolute top-10 right-10 z-20">
+      <div className="absolute top-16 right-6 sm:top-10 sm:right-10 z-20">
         <motion.button
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: isLandingContentVisible ? 1 : 0, y: isLandingContentVisible ? 0 : -20 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="bg-purple-700 text-white px-4 py-2 rounded-full text-sm hover:bg-purple-800 transition-colors"
+          className="bg-purple-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm hover:bg-purple-800 transition-colors"
           onClick={() => (window.location.href = "mailto:your.email@example.com")}
           disabled={animPhase !== "idle" || menuOpen} // Disable button during animation or when menu is open
         >
@@ -152,7 +152,7 @@ const Landing = ({ onComplete = () => {}, targetRef }) => {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: isLandingContentVisible ? 1 : 0, scale: isLandingContentVisible ? 1 : 0.9 }}
         transition={{ duration: 0.8, delay: 0.6 }}
-        className="text-3xl md:text-4xl max-w-xl text-center font-semibold z-10"
+        className="text-2xl md:text-3xl lg:text-4xl max-w-sm sm:max-w-xl text-center font-semibold z-10 px-4"
       >
         Take a look at <br />
         <span className="text-purple-400">Bernabas' portfolio of works</span>
@@ -163,7 +163,7 @@ const Landing = ({ onComplete = () => {}, targetRef }) => {
         aria-label="Enter portfolio"
         ref={enterButtonRef}
         onClick={handleEnterClick}
-        className="fixed right-8 top-1/2 transform -translate-y-1/2 w-16 h-16 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg text-white flex items-center justify-center text-xl font-bold z-30"
+        className="fixed right-4 top-1/2 transform -translate-y-1/2 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg text-white flex items-center justify-center text-xl font-bold z-30"
         style={{ pointerEvents: animPhase !== "idle" || menuOpen ? "none" : "auto" }} // Disable button during animation or when menu is open
       >
         →
@@ -189,7 +189,7 @@ const Landing = ({ onComplete = () => {}, targetRef }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: isLandingContentVisible ? 1 : 0, y: isLandingContentVisible ? 0 : 20 }}
         transition={{ duration: 0.5, delay: 0.8 }}
-        className="absolute bottom-5 right-10 text-gray-400 text-sm z-20 text-right"
+        className="absolute bottom-5 right-5 text-gray-400 text-xs sm:text-sm z-20 text-right"
       >
         Based in <br /> Addis Ababa, Ethiopia.
       </motion.p>

@@ -1,19 +1,17 @@
 // src/Components/MenuOverlay.jsx
 import React, { useState, useEffect, useRef } from 'react';
-// No need to import `scroller` here, as `onNavigate` prop handles it from App.jsx
 
-const MenuOverlay = ({ onClose, onNavigate, onReturnToLanding }) => { // Received from Landing.jsx, which gets them from App.jsx
+const MenuOverlay = ({ onClose, onNavigate, onReturnToLanding }) => {
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
   const [hoveredLink, setHoveredLink] = useState(null);
   const overlayRef = useRef();
 
-  // These IDs MUST match the IDs in your App.jsx <section> elements
   const navItems = [
-    { label: 'Home', id: 'home' }, // This ID is 'home' for the Hero section
+    { label: 'Home', id: 'home' },
     { label: 'Works', id: 'works' },
-    { label: 'Service', id: 'service' }, // Ensure App.jsx has <section id="service">
+    { label: 'Service', id: 'service' },
     { label: 'Skill', id: 'skill' },
-    { label: 'About me', id: 'about' }, // IMPORTANT: Changed ID from 'about me' to 'about' to match App.jsx
+    { label: 'About me', id: 'about' },
     { label: 'Contact', id: 'contact' },
   ];
 
@@ -31,48 +29,58 @@ const MenuOverlay = ({ onClose, onNavigate, onReturnToLanding }) => { // Receive
     if (overlayRef.current) {
       const rect = overlayRef.current.getBoundingClientRect();
       setCursorPos({
-        x: rect.width / 2, // Centered initially
-        y: rect.height / 2, // Centered initially
+        x: rect.width / 2,
+        y: rect.height / 2,
       });
     }
   }, []);
 
   const handleNavLinkClick = (id) => {
-    if (id === 'home') {
-     
-      onNavigate(id); // This will call App.jsx's handleScrollToSection('home')
-    } else {
-      // For other sections, use onNavigate to scroll within the main portfolio
-      onNavigate(id);
-    }
-    onClose(); // Always close the overlay after navigation
+    onNavigate(id);
+    onClose();
   };
 
   return (
     <div
       ref={overlayRef}
       onMouseMove={handleMouseMove}
-      className="fixed top-0 left-0 w-full h-125 bg-black bg-opacity-95 z-40 p-6 flex flex-col cursor-none" // Changed h-120 to h-screen for full cover
+      className="fixed top-0 left-0 w-full h-screen bg-black bg-opacity-95 z-40 p-4 sm:p-6 flex flex-col cursor-none"
     >
-      {/* Close button for the overlay */}
+      {/* Close button */}
       <button
-        className="absolute top-10 left-10 text-white text-3xl"
+        className="absolute top-6 left-6 text-white text-2xl sm:text-3xl"
         onClick={onClose}
         aria-label="Close menu"
       >
         ✕
       </button>
 
-      {/* Custom cursor element */}
+      {/* Custom cursor (visible only on desktop) */}
       <div
-        className="pointer-events-none fixed z-50 w-30 h-30 rounded-full border border-white"
+        className="pointer-events-none fixed z-50 hidden sm:block"
         style={{
+          width: '150px',
+          height: '150px',
+          borderRadius: '50%',
+          border: '2px solid white',
           transform: `translate(${cursorPos.x - 75}px, ${cursorPos.y - 75}px)`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
-      />
+      >
+        <div
+          style={{
+            width: '10px',
+            height: '10px',
+            borderRadius: '50%',
+            backgroundColor: 'white',
+          }}
+        />
+      </div>
 
-      {/* Navigation links within the overlay */}
-      <nav className="text-white text-4xl flex flex-col mt-28 ml-100 space-y-6 font-Mightail z-10">
+      {/* Navigation menu */}
+      <nav className="flex flex-col items-center sm:items-start justify-center flex-1 space-y-6 text-white text-3xl sm:text-4xl font-Mightail z-10 mt-20 sm:mt-28 sm:ml-24">
         {navItems.map(({ label, id }) => (
           <button
             key={id}
@@ -82,7 +90,7 @@ const MenuOverlay = ({ onClose, onNavigate, onReturnToLanding }) => { // Receive
             className={`
               transition-colors duration-300
               ${hoveredLink && hoveredLink !== id ? 'text-purple-400' : 'text-white'}
-              text-left bg-transparent border-none cursor-pointer
+              text-center sm:text-left bg-transparent border-none cursor-pointer
             `}
           >
             {label}
