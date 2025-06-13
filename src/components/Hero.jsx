@@ -1,170 +1,118 @@
-// src/Components/Hero.jsx
-
 import React, { useRef, useState, useLayoutEffect, useEffect } from 'react';
-import { motion, AnimatePresence } from "framer-motion";
-import { Linkedin, Instagram, Youtube } from "lucide-react";
+import { motion } from "framer-motion";
+import { Linkedin, Instagram } from "lucide-react";
 import heroBg from '../assets/hero-bg.png';
-import Navbar from './Navbar'; // This Navbar import within Hero might be redundant if you're rendering Navbar in App.jsx
+import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
 
-const Hero = ({ buttonRef, onNavigate }) => {  // <-- onNavigate prop is correctly received
+const Hero = ({ buttonRef }) => { // onNavigate prop is removed as it's no longer needed for this button
+  const containerRef = useRef(null);
+  const [isHeroContentVisible, setIsHeroContentVisible] = useState(false);
+  const [buttonRect, setButtonRect] = useState(null);
+  const navigate = useNavigate(); // Initialize useNavigate hook
 
-  const containerRef = useRef(null);
-  const [heroAnimPhase, setHeroAnimPhase] = useState('initialCover');
-  const [buttonRect, setButtonRect] = useState(null);
+  useLayoutEffect(() => {
+    if (buttonRef?.current) {
+      setButtonRect(buttonRef.current.getBoundingClientRect());
+    }
+  }, [buttonRef?.current]);
 
-  useLayoutEffect(() => {
-    if (buttonRef.current) {
-      setButtonRect(buttonRef.current.getBoundingClientRect());
-    }
-  }, [buttonRef]);
+  useEffect(() => {
+    const contentAppearTimeout = setTimeout(() => {
+      setIsHeroContentVisible(true);
+    }, 100);
+    return () => clearTimeout(contentAppearTimeout);
+  }, []);
 
-  useEffect(() => {
-    if (heroAnimPhase === 'initialCover' && buttonRect) {
-      const shrinkTimeout = setTimeout(() => {
-        setHeroAnimPhase('shrinkToButton');
-      }, 200);
-      return () => clearTimeout(shrinkTimeout);
-    }
-  }, [heroAnimPhase, buttonRect]);
+  // Callback function for when the "Works" button is clicked
+  const handleButtonClick = (e) => {
+    e.preventDefault();
+    console.log("[Hero.jsx] 'Works' button clicked. Navigating to '/works'.");
+    navigate('/works'); // Directly navigate to the /works page
+  };
 
-  const purpleOverlayVariants = {
-    initialCover: {
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
-      width: "200vmax",
-      height: "200vmax",
-      borderRadius: "0%",
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0 }
-    },
-    shrinkToButton: {
-      x: buttonRect ? buttonRect.left + buttonRect.width / 2 : window.innerWidth / 2,
-      y: buttonRect ? buttonRect.top + buttonRect.height / 2 : window.innerHeight / 2,
-      width: buttonRect ? buttonRect.width : 0,
-      height: buttonRect ? buttonRect.height : 0,
-      borderRadius: "50%",
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 1,
-        ease: "easeInOut",
-      },
-      transitionEnd: {
-        opacity: 0,
-        display: 'none'
-      }
-    },
-  };
+  return (
+    <div
+      id="home"
+      ref={containerRef}
+      className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center px-6 mt-15 relative overflow-hidden"
+      style={{ backgroundImage: `url(${heroBg})` }}
+    >
+      <motion.div
+        initial={{ opacity: 0, x: 100 }}
+        animate={{ opacity: isHeroContentVisible ? 1 : 0, x: isHeroContentVisible ? 0 : 100 }}
+        transition={{ duration: 1, delay: 0.5 }}
+        className="text-center md:text-left max-w-xl mx-auto md:ml-16 space-y-5 text-white px-4 md:px-6 relative z-10"
+      >
+        <h1
+          className="text-2xl sm:text-3xl md:text-4xl font-bold font-Mightail"
+          style={{ textShadow: '4px 4px 10px rgba(0,0,0,0.9)' }}
+        >
+          Hi I'm
+          <div className="text-purple-400 font-Mightail text-4xl sm:text-5xl md:text-6xl">
+            Bernabas
+          </div>
+          <div className="text-purple-400 font-Mightail text-4xl sm:text-5xl md:text-6xl">
+            Tegegn
+          </div>
+        </h1>
 
-  const handleShrinkComplete = (definition) => {
-    if (definition === 'shrinkToButton') {
-      setHeroAnimPhase('contentVisible');
-    }
-  };
+        <motion.p
+          className="text-xl md:text-2xl text-gray-300 font-LinearSans"
+          style={{ textShadow: '3px 3px 6px rgba(0,0,0,0.8)' }}
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
+          Cinematographer & Visual Storyteller
+        </motion.p>
 
-  const isHeroContentVisible = heroAnimPhase === 'contentVisible';
+        <p
+          className="text-gray-400 font-LinearSans text-lg md:text-xl"
+          style={{ textShadow: '3px 3px 5px rgba(0,0,0,0.7)' }}
+        >
+          Creating immersive visual experiences through film, lighting, and narrative motion. Let's bring your story to life.
+        </p>
 
-  // This is the handler for the "Let's See" button
-  const handleButtonClick = (e) => {
-    e.preventDefault();
-    console.log("[Hero.jsx] 'Let's See' button clicked. Attempting to navigate to 'works'.");
-    if (onNavigate) {
-      onNavigate("works"); // <-- This will call handleScrollToSection in App.jsx
-    } else {
-      // fallback native scroll (less preferred if react-scroll is used)
-      const el = document.getElementById("works");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+        {/* Social media icons */}
+        <div className="flex gap-4 justify-center md:justify-start mt-8 text-gray-400">
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"
+             className="transition-colors duration-300 hover:text-purple-400 transform hover:scale-110">
+            <Linkedin size={24} />
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+             className="transition-colors duration-300 hover:text-purple-400 transform hover:scale-110">
+            <Instagram size={24} />
+          </a>
+          <a href="mailto:youremail@example.com" target="_blank" rel="noopener noreferrer"
+             className="transition-colors duration-300 hover:text-purple-400 transform hover:scale-110 flex items-center justify-center">
+            <i className="fa-solid fa-envelope text-2xl"></i>
+          </a>
+        </div>
 
-  return (
-    <div id="home"
-      ref={containerRef}
-      className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center px-6 mt-15 relative overflow-hidden"
-      style={{ backgroundImage: `url(${heroBg})` }}
-    >
-      <AnimatePresence>
-        {heroAnimPhase !== 'contentVisible' && buttonRect && (
-          <motion.div
-            key="hero-purple-overlay"
-            initial="initialCover"
-            animate="shrinkToButton"
-            exit={{ opacity: 0 }}
-            variants={purpleOverlayVariants}
-            onAnimationComplete={handleShrinkComplete}
-            className="fixed inset-0 bg-purple-600 z-40"
-            style={{ transformOrigin: 'center' }}
-          />
-        )}
-      </AnimatePresence>
+        {/* Call to Action text */}
+        <motion.p
+          className="text-lg md:text-xl text-gray-200 font-LinearSans"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: isHeroContentVisible ? 1 : 0, y: isHeroContentVisible ? 0 : 30 }}
+          transition={{ delay: 0.8, duration: 0.5, ease: "easeOut" }}
+          style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.6)' }}
+        >
+          Ready to explore my creative vision?
+        </motion.p>
 
-      {/* IMPORTANT: Remove this Navbar render. Your App.jsx renders Navbar conditionally.
-          Rendering it here too would cause duplicates or conflicts.
-          <Navbar />
-      */}
-
-      <motion.div
-        initial={{ opacity: 0, x: 100 }}
-        animate={{ opacity: isHeroContentVisible ? 1 : 0, x: isHeroContentVisible ? 0 : 100 }}
-        transition={{ duration: 1, delay: isHeroContentVisible ? 0.5 : 0 }}
-        className="text-left max-w-xl space-y-4 text-white ml-16 relative z-10"
-      >
-        <h1
-          className="text-4xl md:text-5xl font-bold font-Mightail"
-          style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.7)' }}
-        >
-          Hi I'm
-          <div className="text-purple-400 font-Mightail">
-            Bernabas
-          </div>
-          <div className="text-purple-400 font-Mightail">
-            Tegegn
-          </div>
-        </h1>
-
-        <motion.p
-          className="text-xl md:text-2xl text-gray-300 font-LinearSans mt-2"
-          style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.6)' }}
-          animate={{ opacity: [0.7, 1, 0.7] }}
-          transition={{ duration: 3, repeat: Infinity }}
-        >
-          Cinematographer & Visual Storyteller
-        </motion.p>
-
-        <p
-          className="text-gray-400 pt-2 font-LinearSans text-lg md:text-xl"
-          style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}
-        >
-          Creating immersive visual experiences through film, lighting, and narrative motion. Let's bring your story to life.
-        </p>
-
-        <div className="flex gap-4 justify-start mt-8 text-gray-400">
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
-            <Linkedin size={24} />
-          </a>
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-            <Instagram size={24} />
-          </a>
-          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">
-            <Youtube size={24} />
-          </a>
-        </div>
-      </motion.div>
-
-      {/* The "Let's See" button */}
-      <motion.button
-        ref={buttonRef}
-        onClick={handleButtonClick} // This now correctly calls the onNavigate prop
-        className="fixed right-8 top-1/2 transform -translate-y-1/2 w-24 h-24 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg text-white flex flex-col items-center justify-center text-center text-sm font-bold z-20"
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: isHeroContentVisible ? 1 : 0, scale: isHeroContentVisible ? 1 : 0.5 }}
-        transition={{ delay: isHeroContentVisible ? 0.7 : 0, duration: 0.5, ease: "easeOut" }}
-      >
-        Let's <br /> See
-      </motion.button>
-    </div>
-  );
+        {/* "Works" button */}
+        <motion.button
+          ref={buttonRef}
+          onClick={handleButtonClick}
+          className="px-6 py-3 bg-purple-600 text-white rounded-lg shadow-lg hover:bg-purple-700 transition duration-300 ease-in-out transform hover:scale-105 mt-8 font-bold text-lg"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: isHeroContentVisible ? 1 : 0, y: isHeroContentVisible ? 0 : 50 }}
+          transition={{ delay: 1.0, duration: 0.5, ease: "easeOut" }}
+        >
+          View Projects 
+        </motion.button>
+      </motion.div>
+    </div>
+  );
 };
 
 export default Hero;

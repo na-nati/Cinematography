@@ -1,30 +1,35 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef } from "react";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { scroller } from "react-scroll";
 
 // Import your main content sections
 import Hero from "./components/Hero";
 import About from "./components/About";
 import Work from "./components/Work";
-import Contact from "./components/contact";
+import Contact from "./components/Contact";
 import Skill from "./components/Skill";
-import Service from "./components/Service"; // Assuming you have a Service component
+import Service from "./components/Service";
 
-// Import the Landing page and the main Navbar
-import Landing from "./components/Landing";
+// Import the Navbar
 import Navbar from "./components/Navbar";
 
-const App = () => {
-  const [showLanding, setShowLanding] = useState(true);
-  const portfolioButtonRef = useRef(null);
-  const [targetSectionAfterLanding, setTargetSectionAfterLanding] = useState(null);
+// New component for the dedicated Work page
+// This will render when the user navigates to /works
+const WorkPage = () => {
+  return (
+    <div className="">
+      {/* Navbar is intentionally omitted here */}
+      <Work />
+    </div>
+  );
+};
 
-  /**
-   * Function to handle scrolling to a specific section using react-scroll's scroller.
-   * This will be passed to components that need to initiate a scroll.
-   * @param {string} sectionId - The ID of the section to scroll to.
-   */
+// Component to encapsulate the sections that remain on the main landing page
+// This will render when the user navigates to /
+const MainPortfolioPage = ({ heroButtonRef }) => {
+  // This handleScrollToSection is specific to the main page's internal scrolling
   const handleScrollToSection = (sectionId) => {
-    console.log(`[App.jsx] Attempting to scroll to section: ${sectionId}`);
+    console.log(`[MainPortfolioPage.jsx] Scrolling to section: ${sectionId}`);
     scroller.scrollTo(sectionId, {
       duration: 800,
       delay: 0,
@@ -33,84 +38,47 @@ const App = () => {
     });
   };
 
-  /**
-   * Called by Landing when its animation completes or menu navigation occurs.
-   * @param {string | null} targetId - The ID of the section to scroll to (e.g., 'home', 'works').
-   * @param {'animation' | 'instant'} exitMode - How the landing page should exit.
-   */
-  const handleLandingComplete = (targetId = null, exitMode = 'animation') => {
-    console.log(`[App.jsx] handleLandingComplete called. Exit mode: ${exitMode}. Target: ${targetId || 'home'}`);
-    setShowLanding(false); // Hide the landing page
-
-    if (targetId) {
-      setTargetSectionAfterLanding(targetId);
-    } else {
-      setTargetSectionAfterLanding('home'); // Default to 'home' if no specific target
-    }
-  };
-
-  /**
-   * Effect to handle scrolling after landing page dismisses.
-   */
-  useEffect(() => {
-    if (!showLanding && targetSectionAfterLanding) {
-      const timeoutId = setTimeout(() => {
-        handleScrollToSection(targetSectionAfterLanding);
-        setTargetSectionAfterLanding(null);
-      }, 100); // Small delay to ensure sections are mounted
-      return () => clearTimeout(timeoutId);
-    }
-  }, [showLanding, targetSectionAfterLanding]);
-
-  /**
-   * Function passed to the main Navbar.jsx.
-   * Called when the home icon in the Navbar is clicked.
-   * It brings the Landing page back into view.
-   */
-  const returnToLanding = () => {
-    console.log("[App.jsx] Navbar Home icon clicked: Setting showLanding to TRUE.");
-    setShowLanding(true); // Set state to true to render the Landing component again
-    window.scrollTo(0, 0); // Scroll to the very top of the window for a clean landing page view
-    setTargetSectionAfterLanding(null); // Clear any previous scroll target
-  };
-
   return (
     <>
-      {/* Navbar for main portfolio view */}
-      {!showLanding && <Navbar onReturnToLanding={returnToLanding} />}
+      {/* Navbar is now rendered ONLY within the MainPortfolioPage */}
+      <Navbar onNavigate={handleScrollToSection} /> {/* Pass onNavigate to Navbar */}
 
-      {/* Conditional rendering of Landing vs. Main Portfolio */}
-      {showLanding ? (
-        <Landing
-          onComplete={handleLandingComplete}
-          targetRef={portfolioButtonRef}
-          onReturnToLanding={returnToLanding} // <-- Pass this to Landing for its MenuOverlay
-          onNavigate={handleScrollToSection} // <-- Pass this to Landing for its MenuOverlay
-        />
-      ) : (
-        <>
-          {/* Each section must have a unique ID matching your Navbar/MenuOverlay links */}
-          <section id="home">
-            <Hero buttonRef={portfolioButtonRef} onNavigate={handleScrollToSection} />
-          </section>
-          <section id="works">
-            <Work />
-          </section>
-          <section id="service"> {/* <-- New Service Section */}
-            <Service /> {/* Assuming Service component exists */}
-          </section>
-          <section id="skill">
-            <Skill />
-          </section>
-          <section id="about"> {/* <-- ID is "about" (no space) */}
-            <About />
-          </section>
-          <section id="contact">
-            <Contact />
-          </section>
-        </>
-      )}
+      <section id="home">
+        <Hero onNavigate={handleScrollToSection} buttonRef={heroButtonRef} />
+      </section>
+      {/* 'Work' section is removed from here as it's now a separate page */}
+      <section id="service">
+        <Service />
+      </section>
+      <section id="skill">
+        <Skill />
+      </section>
+      <section id="about">
+        <About />
+      </section>
+      <section id="contact">
+        <Contact />
+      </section>
     </>
+  );
+};
+
+// Main App component that sets up routing
+const App = () => {
+  // Ref for the Hero component's button (passed down to MainPortfolioPage)
+  const heroButtonRef = useRef(null);
+
+  return (
+    <Router>
+      {/* Navbar is no longer rendered globally here */}
+
+      {/* Define application routes */}
+      <Routes>
+        <Route path="/" element={<MainPortfolioPage heroButtonRef={heroButtonRef} />} />
+        <Route path="/works" element={<WorkPage />} />
+        {/* Add more routes here for other separate pages if needed */}
+      </Routes>
+    </Router>
   );
 };
 
