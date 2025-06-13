@@ -6,7 +6,7 @@ import { scroller } from "react-scroll";
 import Hero from "./components/Hero";
 import About from "./components/About";
 import Work from "./components/Work";
-import Contact from "./components/Contact";
+import Contact from "./components/contact";
 import Skill from "./components/Skill";
 import Service from "./components/Service";
 
