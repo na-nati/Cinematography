@@ -9,7 +9,8 @@ import Work from "./components/Work"; // Your existing dedicated Work component 
 import Contact from "./components/contact";
 import Skill from "./components/Skill";
 import Service from "./components/Service";
-
+import Process from "./components/Process";
+import Testimonials from "./components/Testimonials";
 // Import the Navbar
 import Navbar from "./components/Navbar";
 
@@ -55,6 +56,9 @@ const MainPortfolioPage = ({ heroButtonRef }) => {
         <Service />
       </section>
 
+      <section id="process"> {/* IMPORTANT: Ensure this ID matches the one in Process.jsx */}
+        <Process />
+      </section>
   
       
       <section id="skill">
@@ -62,6 +66,9 @@ const MainPortfolioPage = ({ heroButtonRef }) => {
       </section>
       <section id="about">
         <About />
+      </section>
+      <section id="testimonials"> {/* Add an ID for navigation */}
+        <Testimonials />
       </section>
       <section id="contact">
         <Contact />
