@@ -1,35 +1,34 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaChevronLeft, FaChevronRight, FaVolumeMute, FaVolumeUp, FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import ReactPlayer from "react-player";
-import { useNavigate, Link } from 'react-router-dom';
-import { scroller } from "react-scroll";
+import { useNavigate } from 'react-router-dom';
 
 // Array of Vimeo video URLs with titles and descriptions
 const videos = [
   {
     url: "https://vimeo.com/1092080900/e3b4de5129?share=copy",
     title: "Orbit",
-    description: "A dynamic visual narrative showcasing our recent client collaboration, exploring intricate patterns and fluid movements to represent innovation.",
+    description: "A dynamic visual narrative showcasing our recent client collaboration.",
   },
   {
     url: "https://vimeo.com/1092081999/e97da79b8b?share=copy",
     title: "Furniture Showcase",
-    description: "An elegant presentation of bespoke furniture designs, highlighting craftsmanship, material quality, and contemporary aesthetics in various settings.",
+    description: "An elegant presentation of bespoke furniture designs.",
   },
   {
     url: "https://vimeo.com/1092081163/402f6632f7?share=copy",
     title: "Chocolate Craft",
-    description: "Behind the scenes of artisanal chocolate making, from bean selection to final packaging, emphasizing the passion and precision involved.",
+    description: "Behind the scenes of artisanal chocolate making.",
   },
   {
     url: "https://vimeo.com/1092080665/477e7b71d4?share=copy",
     title: "Nature's Resilience",
-    description: "Capturing the enduring beauty of landscapes and the perseverance of life, featuring breathtaking views and compelling natural phenomena.",
+    description: "Capturing the enduring beauty of landscapes.",
   },
 ];
 
-const Work = () => {
+const OtherWork = () => {
   const navigate = useNavigate();
 
   const [current, setCurrent] = useState(0);
@@ -38,46 +37,43 @@ const Work = () => {
   );
   const [showVolumeIcon, setShowVolumeIcon] = useState(false);
 
-  // Carousel Navigation Logic (Non-Circular)
-  // Using useCallback to memoize these functions for useEffect dependencies
-  const next = useCallback(() => {
+  // --- 1. Stop Circular Carousel Behavior ---
+  const next = () => {
     setCurrent((prev) => Math.min(prev + 1, videos.length - 1)); // Stop at last video
     setShowVolumeIcon(false);
-  }, [videos.length]);
+  };
 
-  const prev = useCallback(() => {
+  const prev = () => {
     setCurrent((prev) => Math.max(prev - 1, 0)); // Stop at first video
     setShowVolumeIcon(false);
-  }, []);
+  };
 
-  // Toggle mute state for a specific video
   const toggleMute = (index) => {
     setMutedStates((prev) => {
       const newMutedStates = prev.map((muted, i) => (i === index ? !muted : muted));
       return newMutedStates;
     });
-    setShowVolumeIcon(true); // Show icon on tap
-    // Set a timeout to hide the icon after a short delay
+    setShowVolumeIcon(true);
     setTimeout(() => {
       setShowVolumeIcon(false);
-    }, 1000); // Icon will be visible for 1 second
+    }, 1000);
   };
 
-  // Keyboard Navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "ArrowLeft") {
-        prev();
+        setCurrent((prev) => Math.max(prev - 1, 0));
       }
       if (e.key === "ArrowRight") {
-        next();
+        setCurrent((prev) => Math.min(prev + 1, videos.length - 1));
       }
+      setShowVolumeIcon(false);
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [prev, next]); // Depend on memoized prev and next
+  }, [videos.length]);
 
-  // Touch/Swipe Logic for Mobile
+  // --- 3. Enable Touch/Swipe for Carousel on Mobile ---
   const [touchStartX, setTouchStartX] = useState(0);
   const [touchEndX, setTouchEndX] = useState(0);
 
@@ -90,13 +86,12 @@ const Work = () => {
   };
 
   const handleTouchEnd = () => {
-    const sensitivity = 75; // Minimum swipe distance to trigger navigation
-    const distance = touchStartX - touchEndX;
-
-    if (distance > sensitivity) {
+    const sensitivity = 50; // Minimum swipe distance to trigger navigation
+    if (touchStartX - touchEndX > sensitivity) {
       // Swiped left
       next();
-    } else if (distance < -sensitivity) {
+    }
+    if (touchStartX - touchEndX < -sensitivity) {
       // Swiped right
       prev();
     }
@@ -104,31 +99,13 @@ const Work = () => {
     setTouchEndX(0);
   };
 
-  // Function to handle navigation to sections on the home page with smooth scrolling
-  const handleScrollToSection = (sectionId) => {
-    navigate('/'); // First navigate to the home page
-    setTimeout(() => {
-      scroller.scrollTo(sectionId, {
-        duration: 800,
-        delay: 0,
-        smooth: "easeInOutQuart",
-        offset: -50, // Adjust this offset if your fixed Navbar causes overlap
-      });
-    }, 100); // Small delay to allow navigation to complete
+  const handleViewMoreWorks = () => {
+    navigate('/works');
   };
 
   return (
-    <div className="relative bg-black text-white w-full flex flex-col items-center py-16 px-4 overflow-hidden">
-      {/* Back to Home Button */}
-      <button
-        onClick={() => navigate('/')}
-        className="absolute top-6 left-6 z-40 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300 shadow-lg"
-      >
-        ← Back to Home
-      </button>
-
-      {/* Main heading for the work section */}
-      <h1 className="text-4xl sm:text-5xl font-bold mb-12 text-purple-400 font-Mightail text-center">My Works</h1>
+    <div className="relative bg-black text-white min-h-screen w-full overflow-hidden flex flex-col justify-center items-center py-10">
+      <h1 className="text-4xl sm:text-5xl font-bold mb-12 text-purple-400 font-Mightail">Works</h1>
 
       {/* Container for the video carousel and its controls */}
       <div
@@ -154,7 +131,8 @@ const Work = () => {
           {videos.map((video, index) => {
             let positionRelativeToCurrent = index - current;
 
-            let currentTranslateX = '0px'; // Initialize with a default value
+            // Simplified position calculation for non-circular
+            let currentTranslateX = '0px';
 
             if (positionRelativeToCurrent === -1) { // Left video slot
                 if (window.innerWidth >= 1024) currentTranslateX = '-450px';
@@ -183,16 +161,15 @@ const Work = () => {
 
             return (
               <motion.div
-                key={index} // Unique key for each video item, essential for Framer Motion
+                key={index}
                 className={`
                   absolute flex items-center justify-center aspect-video rounded-2xl shadow-xl overflow-hidden
                   ${widthClass}
                   left-1/2 -translate-x-1/2
                   ${isMiddle ? 'cursor-pointer' : ''}
                 `}
-                // Animate properties for position (x), scale, opacity, and zIndex
                 animate={{
-                  x: currentTranslateX, // This will be *additional* translation from the centered position
+                  x: currentTranslateX,
                   scale: scale,
                   opacity: opacity,
                   zIndex: zIndex,
@@ -203,30 +180,28 @@ const Work = () => {
                   opacity: { duration: 0.2 },
                 }}
               >
-                {/* Transparent overlay to capture clicks for the middle video */}
                 {isMiddle && (
                   <div
-                    className="absolute inset-0 z-10" // z-10 ensures it's above ReactPlayer but below mute icon
-                    onClick={() => toggleMute(current)} // The click handler
-                    style={{ cursor: 'pointer' }} // Visual cursor feedback
+                    className="absolute inset-0 z-10"
+                    onClick={() => toggleMute(current)}
+                    style={{ cursor: 'pointer' }}
                   ></div>
                 )}
 
                 <ReactPlayer
-                  url={video.url} // Access video URL from the object
-                  playing={isMiddle} // Play only when it's the current video
-                  loop // Loop the video continuously
-                  volume={mutedStates[index] ? 0 : 1} // Control volume explicitly (0 for muted, 1 for unmuted)
-                  controls={false} // Hide default player controls
-                  width="100%" // Make player fill its container's width
-                  height="100%" // Make player fill its container's height
+                  url={video.url}
+                  playing={isMiddle}
+                  loop
+                  volume={mutedStates[index] ? 0 : 1}
+                  controls={false}
+                  width="100%"
+                  height="100%"
                   config={{
-                    vimeo: { // Vimeo specific player options
+                    vimeo: {
                       playerOptions: { dnt: true, byline: false, portrait: false, title: false }
                     }
                   }}
                 />
-                {/* Mute/Unmute Icon Overlay - Remains for visual feedback, will fade out */}
                 <AnimatePresence>
                   {isMiddle && showVolumeIcon && (
                     <motion.div
@@ -265,15 +240,16 @@ const Work = () => {
         </button>
       </div>
 
+      {/* --- 2. Move Description Below Video --- */}
       {/* Display current video title and description below the carousel */}
       <motion.div
-        key={current + "_description"} // Unique key to re-trigger animation on current video change
+        key={current} // Key change to re-trigger animation on current change
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="text-center mt-8 px-4 max-w-2xl"
       >
-        <h3 className="text-2xl sm:text-3xl font-bold text-purple-400 mb-1 font-Mightail">
+        <h3 className="text-2xl sm:text-3xl font-bold text-purple-400 mb-2 font-Mightail">
           {videos[current].title}
         </h3>
         <p className="text-base sm:text-lg text-gray-300 font-LinearSans">
@@ -288,7 +264,7 @@ const Work = () => {
             key={index}
             onClick={() => {
               setCurrent(index);
-              setShowVolumeIcon(false); // Hide icon when navigating via dots
+              setShowVolumeIcon(false);
             }}
             className={`
               p-2 rounded-full cursor-pointer transition-all duration-300
@@ -300,53 +276,20 @@ const Work = () => {
         ))}
       </div>
 
-      {/* Footer Section */}
-      <footer className="w-full bg-gray-900 text-gray-400 text-center py-6 min-h-[25vh] flex flex-col justify-around items-center font-LinearSans mt-16">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row md:justify-between w-full">
-          {/* Left side: Description */}
-          <div className="text-center md:text-left mb-4 md:mb-0 w-full md:w-1/3 flex flex-col justify-center items-center md:items-start">
-            <h4 className="font-bold text-lg mb-2 text-purple-300">My Vision</h4>
-            <p className="text-sm">
-              As a dedicated cinematographer, I blend technical precision with artistic vision to tell compelling stories. My services span from commercial ads to impactful documentaries, focusing on visual excellence and emotional resonance.
-            </p>
-          </div>
-
-          {/* Middle: Navigation Links and Social Media Icons */}
-          <div className="flex flex-col items-center mb-4 md:mb-0 w-full md:w-1/3">
-            <nav className="mb-4 md:mb-2">
-              <ul className="flex flex-col items-center gap-2 text-lg">
-                <li><Link to="/" className="hover:text-purple-400 transition-colors">Home</Link></li>
-                <li><button onClick={() => handleScrollToSection('service')} className="hover:text-purple-400 transition-colors">Services</button></li>
-                <li><button onClick={() => handleScrollToSection('skill')} className="hover:text-purple-400 transition-colors">Skills</button></li>
-                <li><button onClick={() => handleScrollToSection('about')} className="hover:text-purple-400 transition-colors">About</button></li>
-              </ul>
-            </nav>
-            <div className="flex justify-center md:justify-center gap-6 mt-4">
-              <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-purple-400 transition-colors"><FaFacebook size={24} /></a>
-              <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-purple-400 transition-colors"><FaTwitter size={24} /></a>
-              <a href="#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-purple-400 transition-colors"><FaInstagram size={24} /></a>
-            </div>
-          </div>
-
-          {/* Right side: Contact Me Button */}
-          <div className="flex justify-center w-full md:w-1/3 md:justify-end md:self-start">
-            <button
-              onClick={() => handleScrollToSection('contact')}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 shadow-lg mt-4"
-            >
-              Contact Me
-            </button>
-          </div>
-        </div>
-        {/* Copyright */}
-        <div className="container mx-auto px-4 mt-auto">
-          <p className="text-sm">
-            &copy; {new Date().getFullYear()} Cinematographer Portfolio. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      {/* Button to navigate to the full /works page */}
+      <button
+        onClick={handleViewMoreWorks}
+        className="
+          mt-16 px-10 py-5 bg-purple-600 text-white text-xl font-bold
+          rounded-full shadow-lg hover:bg-purple-700
+          transform transition-all duration-300 ease-in-out hover:scale-105
+          focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-75
+        "
+      >
+        View More Works
+      </button>
     </div>
   );
 };
 
-export default Work;
+export default OtherWork;
