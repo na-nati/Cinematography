@@ -14,15 +14,19 @@ import Testimonials from "./components/Testimonials";
 // Import the Navbar
 import Navbar from "./components/Navbar";
 
-// Now, OtherWork *contains* the duplicate carousel logic and the button to /works
-import OtherWork from "./components/Otherwork"; 
+// OtherWork is imported as you had it. If it contains duplicate carousel logic,
+// you might want to refactor it to just show a preview or link to /works.
+import OtherWork from "./components/Otherwork";
 
-// This will render when the user navigates to /works (your original carousel)
+// Import the new CompanyWorkDetail component
+import CompanyWorkDetail from "./components/CompanyWorkDetail"; // Ensure this path is correct
+
+// This will render when the user navigates to /works (your original full carousel)
 const WorkPage = () => {
   return (
     <div className="">
       {/* Navbar is intentionally omitted here as the Work component has its own back button */}
-      <Work /> 
+      <Work />
     </div>
   );
 };
@@ -47,10 +51,9 @@ const MainPortfolioPage = ({ heroButtonRef }) => {
         <Hero onNavigate={handleScrollToSection} buttonRef={heroButtonRef} />
       </section>
 
-      <section id="other-work"> 
+      <section id="other-work">
         <OtherWork />
       </section>
-
 
       <section id="service">
         <Service />
@@ -59,8 +62,7 @@ const MainPortfolioPage = ({ heroButtonRef }) => {
       <section id="process"> {/* IMPORTANT: Ensure this ID matches the one in Process.jsx */}
         <Process />
       </section>
-  
-      
+
       <section id="skill">
         <Skill />
       </section>
@@ -85,7 +87,10 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<MainPortfolioPage heroButtonRef={heroButtonRef} />} />
-        <Route path="/works" element={<WorkPage />} /> {/* This route remains as is */}
+        {/* This route renders your full video carousel */}
+        <Route path="/works" element={<WorkPage />} />
+        {/* This new dynamic route handles individual company work pages */}
+        <Route path="/work/:companyId" element={<CompanyWorkDetail />} />
       </Routes>
     </Router>
   );

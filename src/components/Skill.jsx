@@ -5,7 +5,7 @@ import {
   FaSoundcloud,
   FaCameraRetro,
   FaRegLightbulb,
-  FaApple,
+  FaCut,
 } from 'react-icons/fa';
 import {
   SiAdobepremierepro,
@@ -13,7 +13,6 @@ import {
   SiAdobephotoshop,
 } from 'react-icons/si';
 
-// Structured skill data with categories (no changes needed here)
 const skillCategories = [
   {
     category: "Software & Editing",
@@ -21,7 +20,7 @@ const skillCategories = [
       { name: "Premiere Pro", icon: SiAdobepremierepro, percentage: 95 },
       { name: "After Effects", icon: SiAdobeaftereffects, percentage: 85 },
       { name: "Photoshop", icon: SiAdobephotoshop, percentage: 90 },
-      { name: "Final Cut Pro", icon: FaApple, percentage: 70 },
+      { name: "CapCut", icon: FaCut, percentage: 80 },
     ]
   },
   {
@@ -40,7 +39,6 @@ const skillCategories = [
   },
 ];
 
-// Animation variant for individual skill icons (no changes needed here)
 const rainVariant = {
   hidden: { opacity: 0, y: -50 },
   visible: (i) => ({
@@ -54,9 +52,8 @@ const rainVariant = {
   })
 };
 
-// Component for a single skill icon with hover label and a circular progress bar
 const SkillSymbol = ({ Icon, label, percentage, index }) => {
-  const radius = 40; // Radius for the SVG circle (adjust based on desired visual size)
+  const radius = 40;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
@@ -67,55 +64,49 @@ const SkillSymbol = ({ Icon, label, percentage, index }) => {
       whileInView="visible"
       viewport={{ once: true }}
       variants={rainVariant}
-      // Main container for the skill item
       className="relative group p-2 bg-purple-900/20 border border-purple-600 rounded-full flex flex-col justify-center items-center hover:scale-110 transition-all duration-300"
       style={{
-        width: '120px', // Consistent size for the outer circle (adjust if needed)
+        width: '120px',
         height: '120px',
       }}
     >
-      {/* SVG for the circular progress bar */}
       <svg
         className="absolute inset-0"
         width="100%"
         height="100%"
-        viewBox="0 0 100 100" // Adjust viewBox to match circle positioning
+        viewBox="0 0 100 100"
       >
-        {/* Background circle */}
         <circle
           cx="50"
           cy="50"
           r={radius}
-          strokeWidth="8" // Thickness of the progress bar
-          className="stroke-gray-700 opacity-50" // Background color for the circle
+          strokeWidth="8"
+          className="stroke-gray-700 opacity-50"
           fill="transparent"
         />
-        {/* Progress circle */}
         <circle
           cx="50"
           cy="50"
           r={radius}
-          strokeWidth="8" // Thickness of the progress bar
-          className="stroke-purple-400" // Color of the progress bar
+          strokeWidth="8"
+          className="stroke-purple-400"
           fill="transparent"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round" // Rounded ends for the progress bar
+          strokeLinecap="round"
           style={{
-            transition: 'stroke-dashoffset 1.5s ease-out', // Smooth animation for the fill
-            transform: 'rotate(-90deg)', // Start the progress from the top
+            transition: 'stroke-dashoffset 1.5s ease-out',
+            transform: 'rotate(-90deg)',
             transformOrigin: 'center',
           }}
         />
       </svg>
 
-      {/* Icon and Percentage Text (placed on top of SVG) */}
       <div className="relative z-10 flex flex-col justify-center items-center">
-        <Icon className="text-purple-300 text-3xl md:text-4xl mb-1" /> {/* Adjusted icon size */}
+        <Icon className="text-purple-300 text-3xl md:text-4xl mb-1" />
         <span className="text-white text-md font-bold font-LinearSans">{percentage}%</span>
       </div>
 
-      {/* Label that appears on hover */}
       <span className="absolute bottom-2 text-sm bg-black/70 text-white px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-all font-LinearSans">
         {label}
       </span>
@@ -123,7 +114,6 @@ const SkillSymbol = ({ Icon, label, percentage, index }) => {
   );
 };
 
-// The rest of your Skills component remains the same
 const Skills = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
