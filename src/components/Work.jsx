@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaChevronLeft, FaChevronRight, FaVolumeMute, FaVolumeUp, FaFacebook, FaTwitter, FaInstagram, FaEnvelope } from "react-icons/fa"; // Import FaEnvelope
+import { FaChevronLeft, FaChevronRight, FaVolumeMute, FaVolumeUp, FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
 import ReactPlayer from "react-player";
 import { useNavigate, Link } from 'react-router-dom';
 import { scroller } from "react-scroll";
@@ -355,7 +355,7 @@ const Work = () => {
           ></button>
         ))}
       </div>
-        {/* Companies Section: Three-column grid with square logos, no border, and purple buttons */}
+       {/* Companies Section: Three-column grid with square logos, no border, and purple buttons */}
       <section className="w-full py-16 px-6 bg-black mt-16">
         <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-300 mb-12 font-Mightail">
           Clients I've Worked With
@@ -369,7 +369,7 @@ const Work = () => {
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="relative flex flex-col items-center p-6 rounded-xl overflow-hidden group
-                        hover:shadow-xl transition-shadow duration-300 hover:scale-[1.01]"
+                         hover:shadow-xl transition-shadow duration-300 hover:scale-[1.01]"
             >
               {/* Background image div for the whole card on hover */}
               <div
@@ -448,8 +448,8 @@ const Work = () => {
             </div>
           </div>
 
-          {/* Removed the Contact Me button from the footer for mobile and introduced a FAB */}
-          <div className="hidden md:flex justify-center w-full md:w-1/3 md:justify-end md:self-start">
+          {/* Right side: Contact Me Button */}
+          <div className="flex justify-center w-full md:w-1/3 md:justify-end md:self-start">
             <button
               onClick={() => handleScrollToSection('contact')}
               className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 shadow-lg mt-4"
@@ -465,15 +465,6 @@ const Work = () => {
           </p>
         </div>
       </footer>
-
-      {/* Floating Action Button (FAB) for Contact Me - Visible only on small screens */}
-      <button
-        onClick={() => handleScrollToSection('contact')}
-        className="fixed bottom-6 right-6 z-50 bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-full shadow-lg transition-all duration-300 transform active:scale-95 md:hidden flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-purple-400"
-        aria-label="Contact Me"
-      >
-        <FaEnvelope size={24} />
-      </button>
     </div>
   );
 };
