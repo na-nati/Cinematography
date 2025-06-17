@@ -15,27 +15,25 @@ import {
 
 const skillCategories = [
   {
-    category: "Software & Editing",
+    category: 'Software & Editing',
     skills: [
-      { name: "Premiere Pro", icon: SiAdobepremierepro, percentage: 95 },
-      { name: "After Effects", icon: SiAdobeaftereffects, percentage: 85 },
-      { name: "Photoshop", icon: SiAdobephotoshop, percentage: 90 },
-      { name: "CapCut", icon: FaCut, percentage: 80 },
-    ]
+      { name: 'Premiere Pro', icon: SiAdobepremierepro },
+      { name: 'After Effects', icon: SiAdobeaftereffects },
+      { name: 'Photoshop', icon: SiAdobephotoshop },
+      { name: 'CapCut', icon: FaCut },
+    ],
   },
   {
-    category: "Cinematography Skills",
+    category: 'Cinematography Skills',
     skills: [
-      { name: "Cinematography", icon: FaFilm, percentage: 92 },
-      { name: "Camera Work", icon: FaCameraRetro, percentage: 88 },
-      { name: "Lighting Design", icon: FaRegLightbulb, percentage: 80 },
-    ]
+      { name: 'Cinematography', icon: FaFilm },
+      { name: 'Camera Work', icon: FaCameraRetro },
+      { name: 'Lighting Design', icon: FaRegLightbulb },
+    ],
   },
   {
-    category: "Audio & Post-Production",
-    skills: [
-      { name: "Sound Design", icon: FaSoundcloud, percentage: 75 },
-    ]
+    category: 'Audio & Post-Production',
+    skills: [{ name: 'Sound Design', icon: FaSoundcloud }],
   },
 ];
 
@@ -47,15 +45,14 @@ const rainVariant = {
     transition: {
       delay: i * 0.1,
       duration: 0.8,
-      ease: 'easeOut'
-    }
-  })
+      ease: 'easeOut',
+    },
+  }),
 };
 
-const SkillSymbol = ({ Icon, label, percentage, index }) => {
-  const radius = 40;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+const SkillSymbol = ({ Icon, label, index }) => {
+  // Removed percentage and related SVG elements (circle for progress)
+  // as the percentage display is being removed.
 
   return (
     <motion.div
@@ -70,41 +67,9 @@ const SkillSymbol = ({ Icon, label, percentage, index }) => {
         height: '120px',
       }}
     >
-      <svg
-        className="absolute inset-0"
-        width="100%"
-        height="100%"
-        viewBox="0 0 100 100"
-      >
-        <circle
-          cx="50"
-          cy="50"
-          r={radius}
-          strokeWidth="8"
-          className="stroke-gray-700 opacity-50"
-          fill="transparent"
-        />
-        <circle
-          cx="50"
-          cy="50"
-          r={radius}
-          strokeWidth="8"
-          className="stroke-purple-400"
-          fill="transparent"
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          style={{
-            transition: 'stroke-dashoffset 1.5s ease-out',
-            transform: 'rotate(-90deg)',
-            transformOrigin: 'center',
-          }}
-        />
-      </svg>
-
       <div className="relative z-10 flex flex-col justify-center items-center">
-        <Icon className="text-purple-300 text-3xl md:text-4xl mb-1" />
-        <span className="text-white text-md font-bold font-LinearSans">{percentage}%</span>
+        <Icon className="text-purple-300 text-3xl md:text-4xl" />
+        {/* Removed the percentage display span */}
       </div>
 
       <span className="absolute bottom-2 text-sm bg-black/70 text-white px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-all font-LinearSans">
@@ -192,16 +157,17 @@ const Skills = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black px-4 sm:px-6 py-16 text-white overflow-hidden font-Mightail relative">
-
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.07] font-Mightail">
         {parallaxTexts.map((item, i) => (
-            <div
-              key={`${item.text}-${i}`}
-              className={`absolute ${item.position} text-lg sm:text-xl md:text-3xl lg:text-4xl text-purple-500 transform rotate-${Math.floor(Math.random() * 360)}`}
-              style={getParallaxStyle(item.factor)}
-            >
-              {item.text}
-            </div>
+          <div
+            key={`${item.text}-${i}`}
+            className={`absolute ${item.position} text-lg sm:text-xl md:text-3xl lg:text-4xl text-purple-500 transform rotate-${Math.floor(
+              Math.random() * 360
+            )}`}
+            style={getParallaxStyle(item.factor)}
+          >
+            {item.text}
+          </div>
         ))}
       </div>
 
@@ -234,7 +200,7 @@ const Skills = () => {
                   key={skillIndex}
                   Icon={skill.icon}
                   label={skill.name}
-                  percentage={skill.percentage}
+                  // Removed the percentage prop here
                   index={skillIndex}
                 />
               ))}

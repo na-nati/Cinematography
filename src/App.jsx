@@ -5,7 +5,7 @@ import { scroller } from "react-scroll";
 // Import your main content sections
 import Hero from "./components/Hero";
 import About from "./components/About";
-import Work from "./components/Work"; // Your existing dedicated Work component (the carousel)
+
 import Contact from "./components/contact";
 import Skill from "./components/Skill";
 import Service from "./components/Service";
@@ -14,27 +14,17 @@ import Testimonials from "./components/Testimonials";
 // Import the Navbar
 import Navbar from "./components/Navbar";
 
-// OtherWork is imported as you had it. If it contains duplicate carousel logic,
-// you might want to refactor it to just show a preview or link to /works.
-import OtherWork from "./components/Otherwork";
+// OtherWork is the component displaying the grid of clients
+import Otherwork from "./components/Otherwork";
 
-// Import the new CompanyWorkDetail component
-import CompanyWorkDetail from "./components/CompanyWorkDetail"; // Ensure this path is correct
+// CompanyWorkDetail is the component for individual company video carousels
+import CompanyWorkDetail from "./components/CompanyWorkDetail";
 
-// This will render when the user navigates to /works (your original full carousel)
-const WorkPage = () => {
-  return (
-    <div className="">
-      {/* Navbar is intentionally omitted here as the Work component has its own back button */}
-      <Work />
-    </div>
-  );
-};
 
 // Component to encapsulate the sections that remain on the main landing page
 const MainPortfolioPage = ({ heroButtonRef }) => {
   const handleScrollToSection = (sectionId) => {
-    console.log(`[MainPortfolioPage.jsx] Scrolling to section: ${sectionId}`);
+    // This function scrolls to sections on the main portfolio page
     scroller.scrollTo(sectionId, {
       duration: 800,
       delay: 0,
@@ -45,21 +35,23 @@ const MainPortfolioPage = ({ heroButtonRef }) => {
 
   return (
     <>
+      {/* Navbar for main page navigation */}
       <Navbar onNavigate={handleScrollToSection} />
 
       <section id="home">
         <Hero onNavigate={handleScrollToSection} buttonRef={heroButtonRef} />
       </section>
 
+      {/* The Clients/OtherWork section is now part of the main page */}
       <section id="other-work">
-        <OtherWork />
+        <Otherwork />
       </section>
 
       <section id="service">
         <Service />
       </section>
 
-      <section id="process"> {/* IMPORTANT: Ensure this ID matches the one in Process.jsx */}
+      <section id="process">
         <Process />
       </section>
 
@@ -69,7 +61,7 @@ const MainPortfolioPage = ({ heroButtonRef }) => {
       <section id="about">
         <About />
       </section>
-      <section id="testimonials"> {/* Add an ID for navigation */}
+      <section id="testimonials">
         <Testimonials />
       </section>
       <section id="contact">
@@ -86,11 +78,17 @@ const App = () => {
   return (
     <Router>
       <Routes>
+        {/* Route for the main portfolio landing page */}
         <Route path="/" element={<MainPortfolioPage heroButtonRef={heroButtonRef} />} />
-        {/* This route renders your full video carousel */}
-        <Route path="/works" element={<WorkPage />} />
-        {/* This new dynamic route handles individual company work pages */}
+
+        {/* Dynamic route for individual company work pages */}
+        {/* The ':companyId' part will capture the ID from the URL (e.g., /work/qrs-furniture) */}
         <Route path="/work/:companyId" element={<CompanyWorkDetail />} />
+
+        {/* Removed the /works route and WorkPage as they are no longer needed
+            given the new structure of individual company work pages with carousels.
+            If you need a general video carousel, you would create a new component for it.
+        */}
       </Routes>
     </Router>
   );

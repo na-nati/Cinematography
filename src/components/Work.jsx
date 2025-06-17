@@ -4,12 +4,6 @@ import { FaChevronLeft, FaChevronRight, FaVolumeMute, FaVolumeUp, FaFacebook, Fa
 import ReactPlayer from "react-player";
 import { useNavigate, Link } from 'react-router-dom';
 import { scroller } from "react-scroll";
-import QRS from "../assets/QRS.jpg"
-import Habtam from "../assets/Habtam.png"
-import fourwinds from "../assets/FOUR WINDS .png"
-import ewawa from"../assets/ewawa.png"
-import sheqela from"../assets/sheqela.png"
-import orbit from "../assets/Orbit.png"
 
 // Array of Vimeo video URLs with titles and descriptions
 const videos = [
@@ -34,58 +28,8 @@ const videos = [
     description: "Capturing the enduring beauty of landscapes and the perseverance of life, featuring breathtaking views and compelling natural phenomena.",
   },
 ];
-const companies = [
-  {
-    id: "companyA",
-    name: "QRS Furniture",
-    logo: QRS,
-    description: "Collaborated on their captivating visual campaigns, showcasing the unique design and quality of their furniture.",
-    link: "/work/companyA", // Link to the specific detail page
-    videoIndex: 1, // Index of the video relevant to QRS Furniture
-  },
-  {
-    id: "companyB",
-    name: "Habtam Bet",
-    logo: Habtam,
-    description: "Produced engaging video content that highlights the artistry and deliciousness of their traditional culinary products.",
-    link: "/work/companyB",
-    videoIndex: 2, // Index of the video relevant to Habtam Bet
-  },
-  {
-    id: "companyC",
-    name: "Four Winds",
-    logo: fourwinds,
-    description: "Created stunning architectural visualizations and promotional videos for their innovative and sustainable building projects.",
-    link: "/work/companyC",
-    videoIndex: 3, // Index of the video relevant to Four Winds
-  },
-  {
-    id: "companyD",
-    name: "Ewawa Hair",
-    logo: ewawa,
-    description: "Developed vibrant and stylish video advertisements that perfectly capture the essence of their modern hair care brand.",
-    link: "/work/companyD",
-    videoIndex: 0, // Index of the video relevant to Ewawa Hair
-  },
-  {
-    id: "companyE",
-    name: "Sheqela",
-    logo: sheqela,
-    description: "Shot and directed their latest fashion lookbook, bringing their unique apparel designs to life with dynamic visuals.",
-    link: "/work/companyE",
-    videoIndex: 1, // Index of the video relevant to Sheqela
-  },
-  {
-    id: "companyF",
-    name: "Orbit",
-    logo: orbit,
-    description: "Partnered to create breathtaking travel documentaries and promotional films, showcasing adventure and exploration.",
-    link: "/work/companyF",
-    videoIndex: 0, // Index of the video relevant to Orbit
-  },
-];
 
-const Work = () => {
+const Otherwork = () => {
   const navigate = useNavigate();
 
   const [current, setCurrent] = useState(0);
@@ -355,70 +299,6 @@ const Work = () => {
           ></button>
         ))}
       </div>
-       {/* Companies Section: Three-column grid with square logos, no border, and purple buttons */}
-      <section className="w-full py-16 px-6 bg-black mt-16">
-        <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-300 mb-12 font-Mightail">
-          Clients I've Worked With
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {companies.map((company, index) => (
-            <motion.div
-              key={company.id}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="relative flex flex-col items-center p-6 rounded-xl overflow-hidden group
-                         hover:shadow-xl transition-shadow duration-300 hover:scale-[1.01]"
-            >
-              {/* Background image div for the whole card on hover */}
-              <div
-                className="absolute inset-0 z-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-xl"
-                style={{ backgroundImage: `url(${company.logo})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-              ></div>
-              {/* Semi-transparent overlay on top of the background image for readability */}
-              <div className="absolute inset-0 z-0 bg-black opacity-0 group-hover:opacity-1 transition-opacity duration-500 rounded-xl"></div>
-
-              {/* Logo container with hover effects */}
-              <Link
-                to={company.link}
-                className="relative z-10 flex-shrink-0 p-2 shadow-sm transition-transform duration-300 hover:scale-[1.1] hover:-translate-y-2 cursor-pointer mb-4"
-                aria-label={`View works for ${company.name}`}
-              >
-                <img
-                  src={company.logo}
-                  alt={`${company.name} Logo`}
-                  className="w-28 h-28 object-contain"
-                  draggable={false}
-                />
-              </Link>
-
-              {/* Company Info (Name and Description) */}
-              <div className="relative z-10 flex-grow text-center mx-0 mb-4">
-                <h3 className="text-xl font-semibold text-gray-200 mb-1 font-Mightail">
-                  {company.name}
-                </h3>
-                <p className="text-gray-400 text-sm font-LinearSans leading-relaxed">
-                  {company.description}
-                </p>
-              </div>
-
-              {/* See Works Button */}
-              <div className="relative z-10 flex-shrink-0">
-                <Link
-                  to={company.link} 
-                  className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg shadow-sm transition-transform duration-300 hover:scale-105 whitespace-nowrap"
-                >
-                  See Works
-                </Link>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      <div className="w-full h-px bg-gray-700 my-16"></div>
-
 
       {/* Footer Section */}
       <footer className="w-full bg-gray-900 text-gray-400 text-center py-6 min-h-[25vh] flex flex-col justify-around items-center font-LinearSans mt-16">
@@ -469,4 +349,4 @@ const Work = () => {
   );
 };
 
-export default Work;
+export default Otherwork;

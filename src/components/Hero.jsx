@@ -38,7 +38,7 @@ const Hero = ({ buttonRef }) => {
     <div
       id="home" // ID for potential direct navigation/linking
       ref={containerRef} // Ref to the main container div
-      className="min-h-screen bg-cover bg-center mt-22 bg-no-repeat flex items-center px-6 relative overflow-hidden pt-24 md:pt-0"
+      className="min-h-screen bg-cover bg-center mt-22 bg-black flex items-center px-6 relative overflow-hidden pt-24 md:pt-0"
       style={{ backgroundImage: `url(${heroBg})` }} // Dynamic background image
     >
       {/* Main content container with Framer Motion animations */}
@@ -56,7 +56,7 @@ const Hero = ({ buttonRef }) => {
         // text-white: White text color.
         // relative z-10: Positioning for stacking context.
         // text-left: Left-aligns text within this div.
-        className="max-w-xl mx-auto md:ml-16 space-y-4 text-white pl-0 pr-0 md:px-6 relative z-10 text-left"
+        className="max-w-xl mx-auto md:ml-0 space-y-4 text-white pl-0 pr-0 md:px-6 relative z-10 text-left"
       >
         {/* Main heading with animated text shadows */}
         <h1
@@ -65,10 +65,10 @@ const Hero = ({ buttonRef }) => {
         >
           Hi I'm
           <div className="text-purple-400 font-Mightail text-5xl sm:text-7xl md:text-8xl lg:text-9xl mt-2 leading-none">
-            Bernabas
+            BERNABAS
           </div>
           <div className="text-purple-400 font-Mightail text-5xl sm:text-7xl md:text-8xl lg:text-9xl mt-1 leading-none">
-            Tegegn
+            TEGEGN
           </div>
         </h1>
 
