@@ -9,13 +9,16 @@ const Navbar = () => {
   const location = useLocation();
   const observersRef = useRef([]);
 
+  // --- UPDATED SECTIONS ARRAY: 'process' and 'testimonials' removed ---
   const sections = [
-    { name: "home", id: "home", path: "/" },
-    { name: "works", id: "other-work", path: "/" }, // Assuming 'other-work' is the ID for your works section
-    { name: "service", id: "service", path: "/" },
-    { name: "skill", id: "skill", path: "/" },
-    { name: "about me", id: "about", path: "/" },
-    { name: "contact", id: "contact", path: "/" },
+    { name: "home", id: "home" },
+    { name: "works", id: "other-work" },
+    { name: "service", id: "service" },
+    // Removed: { name: "process", id: "process" },
+    { name: "skill", id: "skill" },
+    { name: "about me", id: "about" },
+    // Removed: { name: "testimonials", id: "testimonials" },
+    { name: "contact", id: "contact" },
   ];
 
   // Set scroll background
@@ -29,36 +32,55 @@ const Navbar = () => {
 
   // Reset on route change (e.g., if you navigate to /works directly)
   useEffect(() => {
-    // Only reset if we are not on the homepage and then navigate back to homepage
     if (location.pathname === "/") {
-        setActive("home");
+      const timer = setTimeout(() => {
+        const homeElement = document.getElementById("home");
+        if (homeElement) {
+          const initialHomeObserver = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+              setActive("home");
+              console.log("✨ [Navbar Initial Observer] Home section is active on load.");
+            }
+            initialHomeObserver.disconnect();
+          }, { root: null, threshold: 0.1, rootMargin: "-10% 0px -80% 0px" });
+          initialHomeObserver.observe(homeElement);
+        } else {
+            setActive("home");
+            console.warn("⚠️ [Navbar Initial Observer] Home element not found on initial load, setting active to 'home' directly.");
+        }
+      }, 0);
+
+      return () => clearTimeout(timer);
     }
-    setMenuOpen(false); // Close mobile menu on route change
+    setMenuOpen(false);
   }, [location.pathname]);
 
   // Scroll section observer - This is what handles "active page when scroll"
   useEffect(() => {
-    // Only observe sections if we are on the homepage path
+    console.log(`➡️ [Navbar Observer Effect] Running for path: ${location.pathname}`);
+
     if (location.pathname !== "/") {
-      observersRef.current.forEach((obs) => obs.disconnect()); // Disconnect existing observers
-      observersRef.current = []; // Clear the ref
+      observersRef.current.forEach((obs) => obs.disconnect());
+      observersRef.current = [];
+      console.log("🚫 [Navbar Observer Effect] Not on homepage, observers disconnected.");
       return;
     }
 
     const options = {
-      root: null, // refers to the viewport
-      // Adjust rootMargin as needed. This creates an "active zone" in the middle of the screen.
-      // E.g., "-60px 0px -50% 0px" means active when top of element passes 60px from top of viewport, and bottom is above 50% from bottom.
-      rootMargin: "-30% 0px -60% 0px", // Original: good for activating when a section is mostly in the upper middle
-      threshold: 0.1, // Trigger when 10% of the target is visible
+      root: null,
+      // Keep this rootMargin, as it's now working correctly for your active state
+      rootMargin: "-60px 0px -50% 0px",
+      threshold: 0.1,
     };
 
     const callback = (entries) => {
       entries.forEach((entry) => {
+        console.log(`👁️ [Observer Callback] Entry for ID: ${entry.target.id}, isIntersecting: ${entry.isIntersecting}`);
         if (entry.isIntersecting) {
           const sectionId = entry.target.id;
           const matched = sections.find((sec) => sec.id === sectionId);
           if (matched) {
+            console.log(`✨ [Observer Callback] Setting active: ${matched.name}`);
             setActive(matched.name);
           }
         }
@@ -67,47 +89,46 @@ const Navbar = () => {
 
     const observer = new IntersectionObserver(callback, options);
 
-    // Observe each section element by its ID
     sections.forEach((section) => {
       const element = document.getElementById(section.id);
       if (element) {
         observer.observe(element);
+        console.log(`✅ [Navbar Observer Effect] Observing element with ID: ${section.id}`);
+      } else {
+        console.warn(`⚠️ [Navbar Observer Effect] Element with ID: ${section.id} NOT FOUND in the DOM.`);
       }
     });
 
-    // Store observer in ref to disconnect later
     observersRef.current.push(observer);
 
-    // Cleanup function for unmounting or re-running effect
     return () => {
+      console.log("🧹 [Navbar Observer Effect] Cleaning up observers.");
       observersRef.current.forEach((obs) => obs.disconnect());
       observersRef.current = [];
     };
-  }, [location.pathname, sections]); // Depend on location.pathname to re-initialize on route changes, and sections if it were to change dynamically
+  }, [location.pathname, sections]);
 
-  // Click navigation
   const handleNavLinkClick = useCallback((targetId, displayName) => {
-    setMenuOpen(false); // Close mobile menu when a link is clicked
+    setMenuOpen(false);
+
+    setActive(displayName);
 
     if (location.pathname !== "/") {
-      // If not on the homepage, navigate to it first
       navigate("/");
-      // Then, after navigation, scroll to the ID. A small timeout is often needed
-      // to allow the DOM to render the target element before scrolling.
       setTimeout(() => scrollToId(targetId), 100);
     } else {
-      // If already on the homepage, just scroll
       scrollToId(targetId);
     }
 
     function scrollToId(id) {
       const el = document.getElementById(id);
       if (el) {
-        // Adjust yOffset based on your fixed navbar height
-        const yOffset = -60; // Assuming your navbar height is around 60px
+        const yOffset = -60;
         const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
         window.scrollTo({ top: y, behavior: "smooth" });
-        setActive(displayName); // Set active state immediately on click
+        console.log(`🔗 [NavLinkClick] Scrolled to ID: ${id}`);
+      } else {
+        console.warn(`❌ [NavLinkClick] Target element with ID: ${id} not found for scrolling.`);
       }
     }
   }, [navigate, location.pathname]);
@@ -132,9 +153,9 @@ const Navbar = () => {
               return (
                 <a
                   key={section.id}
-                  href={`#${section.id}`} // Standard href for semantic linking
+                  href={`#${section.id}`}
                   onClick={(e) => {
-                    e.preventDefault(); // Prevent default anchor jump
+                    e.preventDefault();
                     handleNavLinkClick(section.id, section.name);
                   }}
                   className={`cursor-pointer italic relative py-2 text-lg transition-all duration-300 ${
@@ -143,7 +164,7 @@ const Navbar = () => {
                       : "text-gray-300 hover:text-purple-300"
                   }`}
                 >
-                  {section.name.charAt(0).toUpperCase() + section.name.slice(1)}
+                  {section.name.charAt(0).toUpperCase() + section.name.slice(1).replace('-', ' ')}
                 </a>
               );
             })}
@@ -167,6 +188,7 @@ const Navbar = () => {
           <button
             className="md:hidden text-white text-2xl z-50 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded p-1"
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
           >
             {menuOpen ? (
               <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -185,7 +207,7 @@ const Navbar = () => {
       {menuOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-75 z-30 md:hidden"
-          onClick={() => setMenuOpen(false)} // Close menu when clicking outside
+          onClick={() => setMenuOpen(false)}
         />
       )}
 
@@ -211,7 +233,7 @@ const Navbar = () => {
                   : "text-gray-300 hover:text-purple-300"
               }`}
             >
-              {section.name.charAt(0).toUpperCase() + section.name.slice(1)}
+              {section.name.charAt(0).toUpperCase() + section.name.slice(1).replace('-', ' ')}
             </a>
           );
         })}

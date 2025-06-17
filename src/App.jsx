@@ -1,11 +1,10 @@
 import React, { useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
-import { scroller } from "react-scroll";
+// REMOVE: import { scroller } from "react-scroll"; // Remove this line
 
 // Import your main content sections
 import Hero from "./components/Hero";
 import About from "./components/About";
-
 import Contact from "./components/contact";
 import Skill from "./components/Skill";
 import Service from "./components/Service";
@@ -22,76 +21,74 @@ import CompanyWorkDetail from "./components/CompanyWorkDetail";
 
 
 // Component to encapsulate the sections that remain on the main landing page
+// REMOVE: { heroButtonRef } prop if not used inside MainPortfolioPage
 const MainPortfolioPage = ({ heroButtonRef }) => {
-  const handleScrollToSection = (sectionId) => {
-    // This function scrolls to sections on the main portfolio page
-    scroller.scrollTo(sectionId, {
-      duration: 800,
-      delay: 0,
-      smooth: "easeInOutQuart",
-      offset: -50, // Adjust this offset if your fixed Navbar causes overlap
-    });
-  };
+  // REMOVE: handleScrollToSection as it uses react-scroll
+  // const handleScrollToSection = (sectionId) => {
+  //   scroller.scrollTo(sectionId, {
+  //     duration: 800,
+  //     delay: 0,
+  //     smooth: "easeInOutQuart",
+  //     offset: -50,
+  //   });
+  // };
 
-  return (
-    <>
-      {/* Navbar for main page navigation */}
-      <Navbar onNavigate={handleScrollToSection} />
+  return (
+    <>
+      {/* Navbar: No longer passing onNavigate, as Navbar handles its own clicks with window.scrollTo */}
+      <Navbar />
 
-      <section id="home">
-        <Hero onNavigate={handleScrollToSection} buttonRef={heroButtonRef} />
-      </section>
+      <section id="home">
+        {/* If Hero has a button that needs to scroll to a section, it will need to use
+           a similar `handleNavLinkClick` logic from Navbar or be passed a prop
+           that uses `window.scrollTo`. For now, ensure it just has the ID. */}
+        <Hero /* REMOVE: onNavigate={handleScrollToSection} */ buttonRef={heroButtonRef} />
+      </section>
 
-      {/* The Clients/OtherWork section is now part of the main page */}
-      <section id="other-work">
-        <Otherwork />
-      </section>
+      <section id="other-work">
+        <Otherwork />
+      </section>
 
-      <section id="service">
-        <Service />
-      </section>
+      <section id="service">
+        <Service />
+      </section>
 
-      <section id="process">
-        <Process />
-      </section>
+      {/* Ensure these sections have IDs that match Navbar's `sections` array */}
+      <section id="process"> {/* Add this to Navbar's sections array */}
+        <Process />
+      </section>
 
-      <section id="skill">
-        <Skill />
-      </section>
-      <section id="about">
-        <About />
-      </section>
-      <section id="testimonials">
-        <Testimonials />
-      </section>
-      <section id="contact">
-        <Contact />
-      </section>
-    </>
-  );
+      <section id="skill">
+        <Skill />
+      </section>
+
+      <section id="about">
+        <About />
+      </section>
+
+      <section id="testimonials"> {/* Add this to Navbar's sections array */}
+        <Testimonials />
+      </section>
+
+      <section id="contact">
+        <Contact />
+      </section>
+    </>
+  );
 };
 
 // Main App component that sets up routing
 const App = () => {
-  const heroButtonRef = useRef(null);
+  const heroButtonRef = useRef(null); // Keep this if Hero still needs it, otherwise remove.
 
-  return (
-    <Router>
-      <Routes>
-        {/* Route for the main portfolio landing page */}
-        <Route path="/" element={<MainPortfolioPage heroButtonRef={heroButtonRef} />} />
-
-        {/* Dynamic route for individual company work pages */}
-        {/* The ':companyId' part will capture the ID from the URL (e.g., /work/qrs-furniture) */}
-        <Route path="/work/:companyId" element={<CompanyWorkDetail />} />
-
-        {/* Removed the /works route and WorkPage as they are no longer needed
-            given the new structure of individual company work pages with carousels.
-            If you need a general video carousel, you would create a new component for it.
-        */}
-      </Routes>
-    </Router>
-  );
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainPortfolioPage heroButtonRef={heroButtonRef} />} />
+        <Route path="/work/:companyId" element={<CompanyWorkDetail />} />
+      </Routes>
+    </Router>
+  );
 };
 
 export default App;
