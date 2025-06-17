@@ -29,8 +29,10 @@ const Otherwork = () => {
     const [videoDuration, setVideoDuration] = useState(null); // Not currently displayed, but kept for onDuration prop
     const [isFullscreen, setIsFullscreen] = useState(false);
 
-    // --- NEW STATE FOR TOUCH/SWIPE DIFFERENTIATION ---
-    const [isSwiping, setIsSwiping] = useState(false); // Flag to track if a swipe is in progress
+    // --- IMPROVED STATE FOR TOUCH/SWIPE DIFFERENTIATION ---
+    // Instead of isSwiping, let's track if a tap was *intended*
+    const [tapCandidate, setTapCandidate] = useState(false); 
+    const touchStartTimeRef = useRef(0); // To measure how long the touch lasted
 
     // --- NEW STATE FOR VIDEO READINESS (for mute/unmute) ---
     const [isCurrentVideoReady, setIsCurrentVideoReady] = useState(false);
@@ -137,8 +139,6 @@ const Otherwork = () => {
         console.log("🔊 [toggleMute] isCurrentVideoReady:", isCurrentVideoReady);
         console.log("🔊 [toggleMute] mutedStates[current] BEFORE update:", mutedStates[current]);
 
-        // We rely on ReactPlayer's `volume` prop to react to `mutedStates`
-        // The `isCurrentVideoReady` check prevents attempts to change volume before the player is fully loaded.
         if (!isCurrentVideoReady) {
             console.warn("⚠️ [toggleMute] Video player NOT READY. Skipping volume change.");
             return;
@@ -148,19 +148,16 @@ const Otherwork = () => {
             const newMutedState = !prev[current];
             console.log(`🔊 [toggleMute] Setting mutedStates for video ${current} to: ${newMutedState}`);
 
-            // Optional: Access the player instance directly IF you want to force setVolume
-            // In most cases, ReactPlayer's `volume` prop re-render is sufficient.
+            // Direct setVolume call added for robustness, though prop should usually suffice
             const playerInstance = videoRefs.current.get(current);
             if (playerInstance && playerInstance.setVolume) {
-                console.log(`🔊 [toggleMute] Attempting direct setVolume(${newMutedState ? 0 : 1}) on player instance.`);
                 playerInstance.setVolume(newMutedState ? 0 : 1);
+                console.log(`🔊 [toggleMute] Attempted direct setVolume(${newMutedState ? 0 : 1}) on player instance.`);
             } else if (playerInstance) {
                 console.warn(`⚠️ [toggleMute] playerInstance.setVolume not found, relying on prop re-render.`);
             } else {
                 console.warn(`⚠️ [toggleMute] playerInstance not found for direct setVolume.`);
             }
-
-
             return { ...prev, [current]: newMutedState };
         });
 
@@ -184,42 +181,51 @@ const Otherwork = () => {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [handlePrevVideo, handleNextVideo]);
 
-    // Touch/Swipe Logic for Video Carousel
-    const [touchStartX, setTouchStartX] = useState(0);
-    const [touchEndX, setTouchEndX] = useState(0);
-    const touchMoveThreshold = 10; // Minimum pixel movement to consider it a swipe, not a tap
+    // --- REVISED Touch/Swipe Logic for Video Carousel ---
+    const touchMoveThreshold = 5; // Reduced from 10. More sensitive to small movements, but still allows for taps.
+    const tapMaxDuration = 200; // Max duration in ms for a touch to be considered a tap
 
     const handleTouchStart = (e) => {
         setTouchStartX(e.touches[0].clientX);
-        setIsSwiping(false); // Reset swiping flag at the start of a touch
+        touchStartTimeRef.current = Date.now(); // Record start time
+        setTapCandidate(true); // Assume it's a tap until proven otherwise
     };
 
     const handleTouchMove = (e) => {
         setTouchEndX(e.touches[0].clientX);
         const distance = Math.abs(e.touches[0].clientX - touchStartX);
         if (distance > touchMoveThreshold) {
-            setIsSwiping(true); // If moved beyond threshold, it's a swipe
+            setTapCandidate(false); // It's a swipe, not a tap
         }
     };
 
     const handleTouchEnd = () => {
         const sensitivity = 75; // Still for carousel swipe
         const distance = touchStartX - touchEndX;
+        const touchDuration = Date.now() - touchStartTimeRef.current;
 
-        if (isSwiping) { // If a swipe was detected
+        if (tapCandidate && touchDuration < tapMaxDuration) {
+            // It's a tap if it was a candidate and short enough duration
+            toggleMute();
+            console.log("✔️ [TouchEnd] Detected a TAP for mute/unmute.");
+        } else if (Math.abs(distance) > sensitivity) {
+            // It's a swipe if movement was significant
             if (distance > sensitivity) {
                 handleNextVideo();
-            } else if (distance < -sensitivity) {
+                console.log("➡️ [TouchEnd] Detected a SWIPE LEFT for next video.");
+            } else { // distance < -sensitivity
                 handlePrevVideo();
+                console.log("⬅️ [TouchEnd] Detected a SWIPE RIGHT for previous video.");
             }
-        } else { // If no significant swipe, treat as a tap for mute/unmute
-            toggleMute(); // This will now check isCurrentVideoReady internally
+        } else {
+            console.log("ℹ️ [TouchEnd] Neither a clear tap nor a clear swipe. No action.");
         }
 
         // Reset all touch states
         setTouchStartX(0);
         setTouchEndX(0);
-        setIsSwiping(false);
+        setTapCandidate(false);
+        touchStartTimeRef.current = 0;
     };
 
     const currentVideoData = selectedCompany?.videos?.[current];
@@ -294,9 +300,9 @@ const Otherwork = () => {
                                         setSelectedCompany(company);
                                     }}
                                     className="relative z-20 px-3 py-1.5 sm:px-4 sm:py-2 bg-purple-600 text-white rounded-lg shadow-md
-                                             opacity-100 transition-opacity duration-300
-                                             mt-3 whitespace-nowrap text-sm sm:text-base
-                                             hover:bg-purple-700 transform hover:scale-105"
+                                            opacity-100 transition-opacity duration-300
+                                            mt-3 whitespace-nowrap text-sm sm:text-base
+                                            hover:bg-purple-700 transform hover:scale-105"
                                     aria-label={`Show works for ${company.name}`}
                                     initial={{ opacity: 1, y: 0 }}
                                     whileHover={{ y: 0, opacity: 1 }}
@@ -399,13 +405,14 @@ const Otherwork = () => {
                                         >
                                             {isMiddle && (
                                                 // --- The overlay that captures clicks/taps for mute/unmute ---
+                                                // Added pointer-events-auto to ensure it's always interactable if isMiddle
                                                 <div
-                                                    className="absolute inset-0 z-10"
+                                                    className="absolute inset-0 z-10 pointer-events-auto"
                                                     onClick={toggleMute} // Handles desktop clicks
                                                     onTouchStart={handleTouchStart}
                                                     onTouchMove={handleTouchMove}
                                                     onTouchEnd={handleTouchEnd}
-                                                    style={{ cursor: 'pointer' }}
+                                                    // Removed inline style for cursor, Tailwind `cursor-pointer` is already on parent `motion.div`
                                                 ></div>
                                             )}
 
@@ -480,9 +487,9 @@ const Otherwork = () => {
                                                 <button
                                                     onClick={() => toggleFullscreen(index)}
                                                     className={`absolute
-                                                        top-2 left-2                  
-                                                        md:top-5 md:left-5           
-                                                        md:ml-35 md:mt-5              
+                                                        top-2 left-2                      
+                                                        md:top-5 md:left-5             
+                                                        md:ml-35 md:mt-5                  
                                                         z-[105] text-white rounded-full p-2 sm:p-3 bg-black/60 transition-all duration-300 shadow-lg hover:bg-purple-700
                                                     `}
                                                     aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
@@ -542,10 +549,11 @@ const Otherwork = () => {
                                     className={`
                                         p-1.5 sm:p-2 rounded-full cursor-pointer transition-all duration-300
                                         ${index === current ? 'bg-purple-600 w-3 h-3 sm:w-4 sm:h-4' : 'bg-gray-700 w-2.5 h-2.5 sm:w-3 h-3'}
-                                        hover:scale-125 focus:outline-none focus:ring-2 focus:ring-purple-400
+                                        hover:scale-125
                                     `}
-                                    aria-label={`Go to video ${index + 1}`}
-                                ></button>
+                                >
+                                
+                                </button>
                             ))}
                         </div>
                     )}
