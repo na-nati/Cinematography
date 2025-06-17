@@ -404,12 +404,17 @@ const Otherwork = () => {
                       {/* Fullscreen Button - Only for the middle video, adjusted position for mobile */}
                       {isMiddle && (
                         <button
-                          onClick={() => toggleFullscreen(index)} // Pass index to toggleFullscreen
-                          className={`absolute top-5 left-3 sm:top-4 sm:left-4 z-[105] text-white ml-35 mt-5 rounded-full p-2 sm:p-3 bg-black/60 transition-all duration-300 shadow-lg hover:bg-purple-700`}
-                          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-                        >
-                          {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
-                        </button>
+                        onClick={() => toggleFullscreen(index)}
+                        className={`absolute
+                          top-2 left-2                 
+                          md:top-5 md:left-5           
+                          md:ml-35 md:mt-5             
+                          z-[105] text-white rounded-full p-2 sm:p-3 bg-black/60 transition-all duration-300 shadow-lg hover:bg-purple-700
+                        `}
+                        aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                      >
+                        {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+                      </button>
                       )}
                     </motion.div>
                   );
