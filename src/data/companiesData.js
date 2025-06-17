@@ -147,7 +147,7 @@ export const companies = [
     description: "Developed engaging promotional content for Nib chocolate, highlighting their services and customer-centric approach.",
     videos: [
       {
-        url: "https://vimeo.com/your-nib-video-1-url", // Placeholder: Replace with actual Nib video URL
+        url: "https://youtube.com/shorts/Bxo1dMRSOrg", // Placeholder: Replace with actual Nib video URL
         title: "Nib chocolate",
         description: "Showcasing Nib chocolate seamless experience.",
       },
