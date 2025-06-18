@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
-// REMOVE: import { scroller } from "react-scroll"; // Remove this line
+// REMOVE: import { scroller } from "react-scroll"; // This line is already marked for removal, good!
 
 // Import your main content sections
 import Hero from "./components/Hero";
@@ -19,76 +19,71 @@ import Otherwork from "./components/Otherwork";
 // CompanyWorkDetail is the component for individual company video carousels
 import CompanyWorkDetail from "./components/CompanyWorkDetail";
 
+// Import the new Footer component
+import Footer from "./components/Footer"; // <--- ADD THIS LINE
 
 // Component to encapsulate the sections that remain on the main landing page
-// REMOVE: { heroButtonRef } prop if not used inside MainPortfolioPage
 const MainPortfolioPage = ({ heroButtonRef }) => {
-  // REMOVE: handleScrollToSection as it uses react-scroll
-  // const handleScrollToSection = (sectionId) => {
-  //   scroller.scrollTo(sectionId, {
-  //     duration: 800,
-  //     delay: 0,
-  //     smooth: "easeInOutQuart",
-  //     offset: -50,
-  //   });
-  // };
+  return (
+    <>
+      <Navbar /> {/* Navbar typically stays outside of sections if it's sticky/global */}
 
-  return (
-    <>
-      {/* Navbar: No longer passing onNavigate, as Navbar handles its own clicks with window.scrollTo */}
-      <Navbar />
+      <section id="home">
+        <Hero buttonRef={heroButtonRef} />
+      </section>
 
-      <section id="home">
-        {/* If Hero has a button that needs to scroll to a section, it will need to use
-           a similar `handleNavLinkClick` logic from Navbar or be passed a prop
-           that uses `window.scrollTo`. For now, ensure it just has the ID. */}
-        <Hero /* REMOVE: onNavigate={handleScrollToSection} */ buttonRef={heroButtonRef} />
-      </section>
+      {/* Your existing sections */}
+      <section id="other-work">
+        <Otherwork />
+      </section>
+      
+      <section id="about">
+        <About />
+      </section>
 
-      <section id="other-work">
-        <Otherwork />
-      </section>
+      <section id="service">
+        <Service />
+      </section>
 
-      <section id="service">
-        <Service />
-      </section>
+      <section id="process">
+        <Process />
+      </section>
 
-      {/* Ensure these sections have IDs that match Navbar's `sections` array */}
-      <section id="process"> {/* Add this to Navbar's sections array */}
-        <Process />
-      </section>
+      <section id="skill">
+        <Skill />
+      </section>
 
-      <section id="skill">
-        <Skill />
-      </section>
+      
 
-      <section id="about">
-        <About />
-      </section>
+      <section id="testimonials">
+        <Testimonials />
+      </section>
 
-      <section id="testimonials"> {/* Add this to Navbar's sections array */}
-        <Testimonials />
-      </section>
-
-      <section id="contact">
-        <Contact />
-      </section>
-    </>
-  );
+      <section id="contact">
+        <Contact />
+      </section>
+      {/* Footer will be added after MainPortfolioPage in App.js */}
+    </>
+  );
 };
 
 // Main App component that sets up routing
 const App = () => {
-  const heroButtonRef = useRef(null); // Keep this if Hero still needs it, otherwise remove.
+  const heroButtonRef = useRef(null);
 
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MainPortfolioPage heroButtonRef={heroButtonRef} />} />
-        <Route path="/work/:companyId" element={<CompanyWorkDetail />} />
-      </Routes>
-    </Router>
-  );
+  return (
+    <Router>
+      <div className="App"> {/* Optional: A wrapper div if you have global styles */}
+        <Routes>
+          <Route path="/" element={<MainPortfolioPage heroButtonRef={heroButtonRef} />} />
+          <Route path="/work/:companyId" element={<CompanyWorkDetail />} />
+          {/* Add other routes here */}
+        </Routes>
+
+        <Footer /> {/* <--- ADD THE FOOTER HERE */}
+      </div>
+    </Router>
+  );
 };
 
 export default App;

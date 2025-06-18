@@ -238,12 +238,12 @@ const Otherwork = () => {
             {/* Two-column layout container - equally split (w-1/2 for lg screens), stacked on smaller */}
             <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto gap-6 sm:gap-8 mt-4">
                 {/* Left Side: Company Logos / Clients List - takes full width on small screens, 1/2 on large */}
-                <div className="w-full lg:w-1/2 p-4 sm:p-6 bg-black rounded-xl shadow-lg ">
+                <div className="w-full lg:w-2/3 p-4 sm:p-6 bg-black rounded-xl shadow-lg ">
                     <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-purple-300 mb-6 sm:mb-8 font-Mightail">
                         Clients
                     </h2>
                     {/* Adjusted grid for better mobile responsiveness */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4">
                         {companies.map((company) => (
                             <motion.div
                                 key={company.id}
@@ -320,7 +320,7 @@ const Otherwork = () => {
                 <div
                     id="other-work"
                     ref={videoSectionRef}
-                    className="w-full lg:w-1/2 p-4 sm:p-6 bg-black rounded-xl shadow-lg flex flex-col items-center justify-center min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]"
+                    className="w-full lg:w-1/3 p-4 sm:p-6 bg-black rounded-xl shadow-lg flex flex-col items-center justify-center min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]"
                 >
                     <h2
                         className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-300 mb-4 font-Mightail text-center flex items-center justify-center"
@@ -489,7 +489,7 @@ const Otherwork = () => {
                                                     className={`absolute
                                                         top-2 left-2                      
                                                         md:top-5 md:left-5             
-                                                        md:ml-35 md:mt-5                  
+                                                        md:ml-75 md:mt-5                  
                                                         z-[105] text-white rounded-full p-2 sm:p-3 bg-black/60 transition-all duration-300 shadow-lg hover:bg-purple-700
                                                     `}
                                                     aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}

@@ -13,10 +13,11 @@ const Navbar = () => {
   const sections = [
     { name: "home", id: "home" },
     { name: "works", id: "other-work" },
+    { name: "about me", id: "about" },
     { name: "service", id: "service" },
     // Removed: { name: "process", id: "process" },
     { name: "skill", id: "skill" },
-    { name: "about me", id: "about" },
+    
     // Removed: { name: "testimonials", id: "testimonials" },
     { name: "contact", id: "contact" },
   ];

@@ -6,7 +6,7 @@ import ewawa from"../assets/ewawa.png";
 import sheqela from"../assets/sheqela.png";
 import orbit from "../assets/Orbit.png";
 // Placeholder imports for new logos - replace with actual paths
-import Nib from "../assets/Orbit.png"; // Assuming you'll add nib.png to your assets
+import Nib from "../assets/nib.png"; // Assuming you'll add nib.png to your assets
 import AOne from "../assets/A one .jpg"; // Assuming you'll add a-one.png to your assets
 
 
@@ -152,9 +152,29 @@ export const companies = [
         description: "Showcasing Nib chocolate seamless experience.",
       },
       {
-        url: "https://vimeo.com/your-nib-video-2-url", // Placeholder: Replace with actual Nib video URL
+        url: "https://youtube.com/shorts/8NklVZfdpHk", // Placeholder: Replace with actual Nib video URL
         title: "Nib chocolate",
         description: "Highlighting Nib chocolate commitment to customer satisfaction.",
+      },
+      {
+        url: "https://youtube.com/shorts/BSSUXCCkOw0", // Placeholder: Replace with actual Nib video URL
+        title: "Nib chocolate",
+        description: "Highlighting Nib chocolate commitment to customer satisfaction.",
+      },
+      {
+        url: "https://youtube.com/shorts/OQbUSsu2MS0", // Placeholder: Replace with actual Nib video URL
+        title: "Nib chocolate",
+        description: "Showcasing Nib chocolate seamless experience.",
+      },
+      {
+        url: "https://youtube.com/shorts/Bxo1dMRSOrg", // Placeholder: Replace with actual Nib video URL
+        title: "Nib chocolate",
+        description: "Showcasing Nib chocolate seamless experience.",
+      },
+      {
+        url: "https://youtube.com/shorts/Bxo1dMRSOrg", // Placeholder: Replace with actual Nib video URL
+        title: "Nib chocolate",
+        description: "Showcasing Nib chocolate seamless experience.",
       },
     ],
   },
