@@ -181,51 +181,54 @@ const Otherwork = () => {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [handlePrevVideo, handleNextVideo]);
 
-    // --- REVISED Touch/Swipe Logic for Video Carousel ---
-    const touchMoveThreshold = 5; // Reduced from 10. More sensitive to small movements, but still allows for taps.
-    const tapMaxDuration = 200; // Max duration in ms for a touch to be considered a tap
-
+    const touchStartXRef = useRef(null);
+    const touchEndXRef = useRef(null);
+    
     const handleTouchStart = (e) => {
-        setTouchStartX(e.touches[0].clientX);
-        touchStartTimeRef.current = Date.now(); // Record start time
-        setTapCandidate(true); // Assume it's a tap until proven otherwise
+      touchStartXRef.current = e.touches[0].clientX;
+      touchStartTimeRef.current = Date.now();
+      setTapCandidate(true);
     };
-
+    
     const handleTouchMove = (e) => {
-        setTouchEndX(e.touches[0].clientX);
-        const distance = Math.abs(e.touches[0].clientX - touchStartX);
-        if (distance > touchMoveThreshold) {
-            setTapCandidate(false); // It's a swipe, not a tap
-        }
+      touchEndXRef.current = e.touches[0].clientX;
+      const distance = Math.abs(touchEndXRef.current - touchStartXRef.current);
+      if (distance > touchMoveThreshold) {
+        setTapCandidate(false);
+      }
     };
+    
+    // Touch sensitivity and tap duration thresholds
+    const sensitivity = 50; // Minimum px for swipe
+    const tapMaxDuration = 250; // ms
+    const touchMoveThreshold = 10; // px
 
     const handleTouchEnd = () => {
-        const sensitivity = 75; // Still for carousel swipe
-        const distance = touchStartX - touchEndX;
-        const touchDuration = Date.now() - touchStartTimeRef.current;
+      const distance = touchStartXRef.current - touchEndXRef.current;
+      const touchDuration = Date.now() - touchStartTimeRef.current;
 
-        if (tapCandidate && touchDuration < tapMaxDuration) {
-            // It's a tap if it was a candidate and short enough duration
-            toggleMute();
-            console.log("✔️ [TouchEnd] Detected a TAP for mute/unmute.");
-        } else if (Math.abs(distance) > sensitivity) {
-            // It's a swipe if movement was significant
-            if (distance > sensitivity) {
-                handleNextVideo();
-                console.log("➡️ [TouchEnd] Detected a SWIPE LEFT for next video.");
-            } else { // distance < -sensitivity
-                handlePrevVideo();
-                console.log("⬅️ [TouchEnd] Detected a SWIPE RIGHT for previous video.");
-            }
-        } else {
-            console.log("ℹ️ [TouchEnd] Neither a clear tap nor a clear swipe. No action.");
+      if (tapCandidate && touchDuration < tapMaxDuration) {
+        // It's a tap if it was a candidate and short enough duration
+        toggleMute();
+        console.log("✔️ [TouchEnd] Detected a TAP for mute/unmute.");
+      } else if (Math.abs(distance) > sensitivity) {
+        // It's a swipe if movement was significant
+        if (distance > sensitivity) {
+          handleNextVideo();
+          console.log("➡️ [TouchEnd] Detected a SWIPE LEFT for next video.");
+        } else { // distance < -sensitivity
+          handlePrevVideo();
+          console.log("⬅️ [TouchEnd] Detected a SWIPE RIGHT for previous video.");
         }
+      } else {
+        console.log("ℹ️ [TouchEnd] Neither a clear tap nor a clear swipe. No action.");
+      }
 
-        // Reset all touch states
-        setTouchStartX(0);
-        setTouchEndX(0);
-        setTapCandidate(false);
-        touchStartTimeRef.current = 0;
+      // Reset all touch states
+      touchStartXRef.current = 0;
+      touchEndXRef.current = 0;
+      setTapCandidate(false);
+      touchStartTimeRef.current = 0;
     };
 
     const currentVideoData = selectedCompany?.videos?.[current];

@@ -36,7 +36,7 @@ const MainPortfolioPage = ({ heroButtonRef }) => {
       <section id="other-work">
         <Otherwork />
       </section>
-      
+
       <section id="about">
         <About />
       </section>
@@ -45,13 +45,15 @@ const MainPortfolioPage = ({ heroButtonRef }) => {
         <Service />
       </section>
 
+      <section id="skill">
+        <Skill />
+      </section>
+
       <section id="process">
         <Process />
       </section>
 
-      <section id="skill">
-        <Skill />
-      </section>
+      
 
       
 

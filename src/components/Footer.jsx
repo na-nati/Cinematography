@@ -75,7 +75,7 @@ const Footer = () => {
 
 
   return (
-    <footer className="relative w-full bg-stone-900 text-gray-300 py-16 overflow-hidden font-LinearSans">
+    <footer className="relative w-full bg-gray-900 text-gray-300 py-16 overflow-hidden font-LinearSans">
 
       {/* Background Icons Layer */}
       <BackgroundIcons />
@@ -123,11 +123,11 @@ const Footer = () => {
               </p>
               <p className="flex items-center justify-center md:justify-start">
                 <Mail size={16} className="mr-2 text-purple-400 flex-shrink-0" />
-                <a href="mailto:your.email@example.com" className="hover:text-purple-400 transition-colors">your.email@example.com</a> {/* Replace with your email */}
+                <a href="mailto:bernabastegegn14@gmail.com" className="hover:text-purple-400 transition-colors">bernabastegegn14@gmail.com</a> {/* Replace with your email */}
               </p>
               <p className="flex items-center justify-center md:justify-start">
                 <Monitor size={16} className="mr-2 text-purple-400 flex-shrink-0" />
-                <a href="https://cinematlographer-portfolio.netlify.app/" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors">www.yourportfolio.com</a> {/* Replace with your website */}
+                <a href="https://cinematlographer-portfolio.netlify.app/" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors">cinematlographer-portfolio.netlify.app</a> {/* Replace with your website */}
               </p>
             </address>
           </div>

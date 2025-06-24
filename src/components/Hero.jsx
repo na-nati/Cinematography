@@ -2,7 +2,7 @@ import React, { useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { motion } from "framer-motion";
 import { Linkedin, Instagram, MessageSquareText } from "lucide-react";
 import heroBgDesktop from '../assets/12435.png';
-import heroBgMobile from '../assets/2.jpg';
+import heroBgMobile from '../assets/21.jpg';
 
 
 const Hero = ({ buttonRef }) => {
