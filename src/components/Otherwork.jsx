@@ -407,17 +407,39 @@ const Otherwork = () => {
                                             }}
                                         >
                                             {isMiddle && (
-                                                // --- The overlay that captures clicks/taps for mute/unmute ---
-                                                // Added pointer-events-auto to ensure it's always interactable if isMiddle
-                                                <div
-                                                    className="absolute inset-0 z-10 pointer-events-auto"
-                                                    onClick={toggleMute} // Handles desktop clicks
-                                                    onTouchStart={handleTouchStart}
-                                                    onTouchMove={handleTouchMove}
-                                                    onTouchEnd={handleTouchEnd}
-                                                    // Removed inline style for cursor, Tailwind `cursor-pointer` is already on parent `motion.div`
-                                                ></div>
-                                            )}
+  <div
+    className="absolute inset-0 z-10 pointer-events-auto"
+    onClick={toggleMute}
+    onTouchStart={(e) => {
+      // Store the initial touch position
+      this.touchStartX = e.touches[0].clientX;
+      this.touchStartY = e.touches[0].clientY;
+    }}
+    onTouchMove={(e) => {
+      // Calculate movement
+      const deltaX = Math.abs(e.touches[0].clientX - this.touchStartX);
+      const deltaY = Math.abs(e.touches[0].clientY - this.touchStartY);
+
+      // If significant movement, it's likely a scroll, so don't prevent default
+      // You might need to fine-tune these thresholds
+      if (deltaX > 10 || deltaY > 10) {
+        // Allow default scroll behavior
+        return;
+      }
+      // Otherwise, prevent default to avoid scrolling when intending a tap
+      e.preventDefault();
+    }}
+    onTouchEnd={(e) => {
+      // If it was a small movement (likely a tap), trigger toggleMute
+      const deltaX = Math.abs(e.changedTouches[0].clientX - this.touchStartX);
+      const deltaY = Math.abs(e.changedTouches[0].clientY - this.touchStartY);
+
+      if (deltaX < 10 && deltaY < 10) { // Small threshold for a "tap"
+        toggleMute();
+      }
+    }}
+  ></div>
+)}
 
                                             <ReactPlayer
                                                 ref={node => setVideoPlayerRef(node, index)}
