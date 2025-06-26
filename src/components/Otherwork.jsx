@@ -15,7 +15,7 @@ const Otherwork = () => {
     const videoRefs = useRef(new Map());
 
     const isInitialMount = useRef(true);
-    // Ref for the timeout to hide the VOLUME icon after a click/tap
+    // Ref for the timeout to hide the VOLUME icon after a click/tap (only used for desktop)
     const volumeIconTimeoutRef = useRef(null); 
 
     const [selectedCompany, setSelectedCompany] = useState(companies[0]);
@@ -24,13 +24,13 @@ const Otherwork = () => {
     const [mutedStates, setMutedStates] = useState({});
     const [videoReadiness, setVideoReadiness] = useState({});
 
-    // State for Volume Icon visibility (temporary on click/tap)
+    // State for Volume Icon visibility (temporary on desktop, persistent on mobile after interaction)
     const [showVolumeIcon, setShowVolumeIcon] = useState(false); 
     // State for Fullscreen Button visibility (on hover for desktop, or always clickable in full screen)
     const [showFullscreenButton, setShowFullscreenButton] = useState(false); 
     const [isFullscreen, setIsFullscreen] = useState(false);
 
-    // NEW: State to determine if the screen size is desktop
+    // State to determine if the screen size is desktop
     const [isDesktop, setIsDesktop] = useState(false);
 
     const touchStartXRef = useRef(0);
@@ -131,16 +131,20 @@ const Otherwork = () => {
         console.log(`➡️ handleNavigation: Moved to index ${newCurrent}.`);
     }, [selectedCompany, current]);
 
-    // Function to show VOLUME icon temporarily after click/tap
-    const showVolumeIconTemporarily = useCallback(() => {
+    // Function to show VOLUME icon. Behavior changes based on isDesktop.
+    const showVolumeIconOnInteraction = useCallback(() => {
         setShowVolumeIcon(true);
-        if (volumeIconTimeoutRef.current) {
-            clearTimeout(volumeIconTimeoutRef.current);
+        if (isDesktop) {
+            // For desktop, show temporarily
+            if (volumeIconTimeoutRef.current) {
+                clearTimeout(volumeIconTimeoutRef.current);
+            }
+            volumeIconTimeoutRef.current = setTimeout(() => {
+                setShowVolumeIcon(false);
+            }, 1000); // Volume icon visible for 1 second on desktop after click/tap
         }
-        volumeIconTimeoutRef.current = setTimeout(() => {
-            setShowVolumeIcon(false);
-        }, 1000); // Volume icon visible for 1 second after click/tap
-    }, []);
+        // For mobile, it stays true until another action hides it (e.g., tap on volume icon itself)
+    }, [isDesktop]);
 
     const toggleMute = useCallback((event) => {
         if (event) {
@@ -160,9 +164,10 @@ const Otherwork = () => {
             return { ...prev, [current]: newMutedState };
         });
 
-        // Always show volume icon temporarily after mute toggle
-        showVolumeIconTemporarily(); 
-    }, [current, videoReadiness, mutedStates, showVolumeIconTemporarily]);
+        // Always show volume icon on any mute toggle action
+        // On mobile, this will make it stay visible. On desktop, it will briefly show.
+        showVolumeIconOnInteraction(); 
+    }, [current, videoReadiness, mutedStates, showVolumeIconOnInteraction]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -181,14 +186,16 @@ const Otherwork = () => {
         touchStartXRef.current = e.touches[0].clientX;
         touchStartYRef.current = e.touches[0].clientY;
         touchTimeRef.current = Date.now();
-        // For touch, show volume icon temporarily on touch start
-        showVolumeIconTemporarily(); 
+        // On touch start, always show the volume icon (for mobile, it will stay)
+        showVolumeIconOnInteraction(); 
     };
 
     const handleVideoTouchMove = (e) => {
         const deltaX = Math.abs(e.touches[0].clientX - touchStartXRef.current);
         const deltaY = Math.abs(e.touches[0].clientY - touchStartYRef.current);
-        if (deltaX < tapThreshold && deltaY < tapThreshold || Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Prevent default only if it's primarily a horizontal movement (potential swipe)
+        // or a very small movement (potential tap)
+        if (Math.abs(deltaX) > Math.abs(deltaY) || (deltaX < tapThreshold && deltaY < tapThreshold)) {
             e.preventDefault();
         }
     };
@@ -199,9 +206,23 @@ const Otherwork = () => {
         const touchDuration = Date.now() - touchTimeRef.current;
 
         if (touchDuration < 300 && Math.abs(deltaX) < tapThreshold && deltaY < tapThreshold) {
-            // If it's a tap, toggle mute. showVolumeIconTemporarily is already called in touchStart.
-            toggleMute(e); 
+            // This is a tap gesture on the video itself.
+            // If the volume icon is already visible (e.g., from a previous tap or navigation),
+            // and the tap is on the video (not the volume icon itself), then toggle mute.
+            // If the volume icon is not visible, tapping the video will show it, and the next tap will toggle mute.
+            // This logic is simplified; the primary interaction will now be with the volume button itself.
+            // The initial tap on the video will just show the volume button.
+            if (!isDesktop) { // Only for mobile, if volume icon is not visible, show it
+                if (!showVolumeIcon) {
+                    showVolumeIconOnInteraction();
+                } else { // If already visible, a tap on video itself should toggle mute
+                    toggleMute(e);
+                }
+            } else { // For desktop, a tap on video still toggles mute
+                toggleMute(e);
+            }
         } else if (Math.abs(deltaX) > swipeSensitivity && deltaY < Math.abs(deltaX) / 2) {
+            // Swipe gesture for navigation
             if (deltaX > 0) {
                 handleNavigation('prev');
             } else {
@@ -376,11 +397,10 @@ const Otherwork = () => {
                                                 opacity: { duration: 0.2 },
                                             }}
                                             // Desktop Hover: Show/Hide fullscreen button
-                                            onMouseEnter={isMiddle ? () => setShowFullscreenButton(true) : undefined}
-                                            onMouseLeave={isMiddle ? () => setShowFullscreenButton(false) : undefined}
-                                            // Click (Desktop) / Tap (Mobile): Toggle mute (which triggers volume icon)
-                                            onClick={isMiddle ? (e) => {
-                                                // Prevent event from bubbling if click originated from our control buttons
+                                            onMouseEnter={isMiddle && isDesktop ? () => setShowFullscreenButton(true) : undefined}
+                                            onMouseLeave={isMiddle && isDesktop ? () => setShowFullscreenButton(false) : undefined}
+                                            // Click (Desktop) / Tap (Mobile): Logic handled inside touch/click handlers
+                                            onClick={isMiddle && isDesktop ? (e) => { // Only desktop click toggles mute on video background
                                                 if (e.target.closest('.volume-controls') || e.target.closest('.fullscreen-button')) return;
                                                 toggleMute(e);
                                             } : undefined}
@@ -434,7 +454,7 @@ const Otherwork = () => {
                                                 />
                                             </Suspense>
 
-                                            {/* VOLUME Controls Overlay (Temporary, centered bottom) */}
+                                            {/* VOLUME Controls Overlay (Temporary on Desktop, Persistent on Mobile) */}
                                             <AnimatePresence>
                                                 {isMiddle && showVolumeIcon && (
                                                     <motion.div
@@ -448,7 +468,7 @@ const Otherwork = () => {
                                                             bottom-3 left-1/2 -translate-x-1/2 
                                                         `}
                                                         // Prevent clicks on the controls from bubbling to the video wrapper
-                                                        onClick={e => e.stopPropagation()}
+                                                        onClick={toggleMute} // Tap on this button always toggles mute
                                                     >
                                                         <button
                                                             onClick={toggleMute} 
