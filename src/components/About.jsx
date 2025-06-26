@@ -57,7 +57,12 @@ const About = () => {
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated) {
           setHasAnimated(true);
-          animate(count, 100, { duration: 2, ease: "easeOut" });
+          // Only animate count if not mobile
+          if (!isMobile) {
+            animate(count, 100, { duration: 2, ease: "easeOut" });
+          } else {
+            setClientCount(100); // Set directly for mobile
+          }
         }
       },
       { threshold: 0.5 }
@@ -73,7 +78,7 @@ const About = () => {
         observer.unobserve(textRef.current);
       }
     };
-  }, [hasAnimated, count]);
+  }, [hasAnimated, count, isMobile]); // Added isMobile to dependencies
 
   const contentVariants = {
     image: {
@@ -94,10 +99,11 @@ const About = () => {
 
         <div
           ref={backgroundCirclesRef}
-          className={`absolute inset-0 transition-opacity duration-[1500ms] ease-out ${hasAnimated ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 transition-opacity duration-[1500ms] ease-out ${hasAnimated && !isMobile ? 'opacity-100' : 'opacity-0'}`}
           style={{ zIndex: -1 }}
         >
-          <BackgroundCircles />
+          {/* Only render BackgroundCircles if not mobile */}
+          {!isMobile && <BackgroundCircles />}
         </div>
 
         {backgroundVideoIcons.map((item) => (
@@ -105,24 +111,25 @@ const About = () => {
             key={item.id}
             className="absolute text-purple-400"
             style={{ left: item.left, top: item.top, zIndex: 0 }}
-            initial={{ opacity: 0 }}
-            animate={{
-              opacity: isMobile ? [0.1, 0.3, 0.1] : [0.2, 0.6, 0.2],
-              x: isMobile ? [0, item.animX * 0.5, 0] : [0, item.animX, 0],
-              y: isMobile ? [0, item.animY * 0.5, 0] : [0, item.animY, 0],
-              scale: isMobile ? [0.95, 1, 0.95] : [0.9, 1, 0.9],
-              rotate: isMobile ? [0, item.animX > 0 ? 4 : -4, 0] : [0, item.animX > 0 ? 8 : -8, 0]
+            // Apply animations only if not mobile
+            initial={isMobile ? {} : { opacity: 0 }}
+            animate={isMobile ? {} : {
+              opacity: [0.2, 0.6, 0.2],
+              x: [0, item.animX, 0],
+              y: [0, item.animY, 0],
+              scale: [0.9, 1, 0.9],
+              rotate: [0, item.animX > 0 ? 8 : -8, 0]
             }}
-            transition={{
-              duration: isMobile ? item.duration * 1.5 : item.duration,
+            transition={isMobile ? {} : {
+              duration: item.duration,
               repeat: Infinity,
               ease: "easeInOut",
               delay: item.delay,
               repeatType: "mirror"
             }}
           >
-            <div style={{ padding: isMobile ? '5px' : '10px' }}>
-              <item.Icon size={isMobile ? item.customSize * 0.7 : item.customSize} />
+            <div style={{ padding: '10px' }}>
+              <item.Icon size={item.customSize} />
             </div>
           </motion.div>
         ))}
@@ -135,9 +142,10 @@ const About = () => {
 
           <motion.div
             ref={imageRef}
-            initial={contentVariants.image.initial}
-            animate={contentVariants.image.animate}
-            transition={contentVariants.image.transition}
+            // Apply animations only if not mobile
+            initial={isMobile ? {} : contentVariants.image.initial}
+            animate={isMobile ? {} : contentVariants.image.animate}
+            transition={isMobile ? {} : contentVariants.image.transition}
             className="w-full md:w-2/5 h-auto px-4 md:px-0"
           >
             <img src={about} alt="About Me" className="w-full h-auto object-cover rounded-lg shadow-lg" />
@@ -145,9 +153,10 @@ const About = () => {
 
           <motion.div
             ref={textRef}
-            initial={contentVariants.text.initial}
-            animate={contentVariants.text.animate}
-            transition={contentVariants.text.transition}
+            // Apply animations only if not mobile
+            initial={isMobile ? {} : contentVariants.text.initial}
+            animate={isMobile ? {} : contentVariants.text.animate}
+            transition={isMobile ? {} : contentVariants.text.transition}
             className="max-w-2xl font-LinearSans flex flex-col justify-between text-left px-4 md:px-0 md:w-3/5 mt-8 md:mt-0"
           >
             <div className="text-left">
@@ -176,17 +185,19 @@ const About = () => {
               ].map((stat, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: hasAnimated ? 1 : 0, y: hasAnimated ? 0 : 30 }}
-                  transition={{ delay: index * 0.2 + 0.5, duration: 0.5 }}
+                  // Apply animations only if not mobile
+                  initial={isMobile ? {} : { opacity: 0, y: 30 }}
+                  animate={isMobile ? {} : { opacity: hasAnimated ? 1 : 0, y: hasAnimated ? 0 : 30 }}
+                  transition={isMobile ? {} : { delay: index * 0.2 + 0.5, duration: 0.5 }}
                   className="p-4 rounded-lg bg-black bg-opacity-50 min-w-[150px] shadow-lg flex flex-col items-center text-center"
                 >
                   <stat.icon className="w-8 h-8 text-purple-400 mb-2" />
                   {stat.isAnimated ? (
                     <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ duration: 0.6, delay: 0.2 }}
+                      // Apply animations only if not mobile
+                      initial={isMobile ? {} : { y: 20, opacity: 0 }}
+                      animate={isMobile ? {} : { y: 0, opacity: 1 }}
+                      transition={isMobile ? {} : { duration: 0.6, delay: 0.2 }}
                       className="text-2xl font-bold text-white"
                     >
                       {clientCount}{stat.label === "Clients" && "+"}

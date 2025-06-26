@@ -39,18 +39,27 @@ export const companies = [
     name: "QRS Furniture",
     logo: QRS,
     description: "Collaborated on their captivating visual campaigns, showcasing the unique design and quality of their furniture. Explore their collection.",
-    videos: [
+    videos:[
       {
-        url: "https://vimeo.com/1092081999/e97da79b8b?share=copy", // Replace with actual QRS videos
-        title: "QRS - Living Room Collection",
-        description: "An elegant presentation of bespoke furniture designs for QRS Furniture, highlighting craftsmanship and contemporary aesthetics in various settings.",
+        "url": "https://youtube.com/shorts/S0L_A5uJzFs",
+        "title": "QRS - Living Room Collection",
+        "description": "Showcasing the exquisite craftsmanship and contemporary design of QRS Furniture's living room collection, this video highlights the aesthetic and functional elegance suitable for high-end residential and commercial spaces."
       },
       {
-        url: "https://vimeo.com/your-qrs-video-2-url", // Placeholder: Replace with actual QRS video URL
-        title: "QRS - Bedroom & Office Furniture",
-        description: "A look at QRS's comfortable bedroom sets and ergonomic office solutions.",
+        "url": "https://youtube.com/shorts/oWuwQt1DTxQ",
+        "title": "QRS - Bedroom & Office Furniture",
+        "description": "A comprehensive visual presentation of QRS's bedroom and office furniture lines, emphasizing comfort, ergonomic design, and sophisticated style for modern living and working environments."
       },
-      // Add more QRS-specific videos as needed
+      {
+        "url": "https://youtube.com/shorts/GsjzwW-CX7M",
+        "title": "QRS - Living Room & Office Furniture",
+        "description": "This video captures the refined details and superior quality of QRS's bedroom and office furniture, illustrating how each piece contributes to creating inviting and productive spaces."
+      },
+      {
+        "url": "https://youtube.com/shorts/pWo9U-Ho5t8",
+        "title": "QRS - Bedroom  Collection",
+        "description": "An immersive visual experience featuring QRS Furniture's living room collection, designed to convey the luxurious textures, innovative designs, and inviting ambiance of each piece."
+      }
     ],
   },
   {
@@ -60,15 +69,11 @@ export const companies = [
     description: "Produced engaging video content that highlights the artistry and deliciousness of their traditional culinary products. Dive into their heritage.",
     videos: [
       {
-        url: "https://vimeo.com/1092081163/402f6632f7?share=copy", // Replace with actual Habtam videos
-        title: "Habtam Bet - Chocolate Craft",
-        description: "Behind the scenes of artisanal chocolate making, from bean selection to final packaging, emphasizing the passion and precision involved.",
+        url: "https://youtube.com/shorts/X2yWuq5apI0", // Replace with actual Habtam videos
+        title: "Habtam Bet ",
+        description: "A visually compelling segment from an independent short film, highlighting atmospheric lighting, dynamic camera work, and a moody color palette to evoke urban solitude and reflection.",
       },
-      {
-        url: "https://vimeo.com/your-habtam-video-2-url", // Placeholder: Replace with actual Habtam video URL
-        title: "Habtam Bet - Traditional Delicacies",
-        description: "Showcasing the preparation and presentation of Habtam Bet's traditional culinary delights.",
-      },
+     
     ],
   },
   {
@@ -78,12 +83,12 @@ export const companies = [
     description: "Created stunning architectural visualizations and promotional videos for their innovative and sustainable building projects. See their vision.",
     videos: [
       {
-        url: "https://vimeo.com/1092080665/477e7b71d4?share=copy", // Replace with actual Four Winds videos
+        url: "https://youtube.com/shorts/KrepHTIX_c0", // Replace with actual Four Winds videos
         title: "Four Winds - Nature's Resilience",
         description: "Capturing the enduring beauty of landscapes and the perseverance of life for Four Winds, featuring breathtaking views and compelling natural phenomena.",
       },
       {
-        url: "https://vimeo.com/your-fourwinds-video-2-url", // Placeholder: Replace with actual Four Winds video URL
+        url: "https://youtube.com/shorts/Y0eYtkDZq-Q", // Placeholder: Replace with actual Four Winds video URL
         title: "Four Winds - Sustainable Architecture",
         description: "Highlighting innovative and eco-friendly building designs by Four Winds.",
       },

@@ -1,106 +1,104 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaChevronLeft, FaChevronRight, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import { Maximize, Minimize } from 'lucide-react';
-import ReactPlayer from "react-player";
 import { useNavigate } from 'react-router-dom';
 
-// IMPORTANT: Ensure this path is correct for your project structure
 import { companies } from '../data/companiesData';
+
+const LazyReactPlayer = lazy(() => import("react-player"));
 
 const Otherwork = () => {
     const navigate = useNavigate();
 
-    // Ref for the entire video showcase section to scroll to it
     const videoSectionRef = useRef(null);
-    // Using a Map to store refs for each individual ReactPlayer in the carousel
     const videoRefs = useRef(new Map());
 
-    // --- NEW REF FOR PREVENTING INITIAL SCROLL ---
     const isInitialMount = useRef(true);
+    // Ref for the timeout to hide the VOLUME icon after a click/tap
+    const volumeIconTimeoutRef = useRef(null); 
 
-    // State to manage the currently selected company
     const [selectedCompany, setSelectedCompany] = useState(companies[0]);
-
-    // States for the video carousel
     const [current, setCurrent] = useState(0);
+
     const [mutedStates, setMutedStates] = useState({});
-    const [showVolumeIcon, setShowVolumeIcon] = useState(false);
-    const [videoDuration, setVideoDuration] = useState(null); // Not currently displayed, but kept for onDuration prop
+    const [videoReadiness, setVideoReadiness] = useState({});
+
+    // State for Volume Icon visibility (temporary on click/tap)
+    const [showVolumeIcon, setShowVolumeIcon] = useState(false); 
+    // State for Fullscreen Button visibility (on hover for desktop, or always clickable in full screen)
+    const [showFullscreenButton, setShowFullscreenButton] = useState(false); 
     const [isFullscreen, setIsFullscreen] = useState(false);
 
-    // --- IMPROVED STATE FOR TOUCH/SWIPE DIFFERENTIATION ---
-    // Instead of isSwiping, let's track if a tap was *intended*
-    const [tapCandidate, setTapCandidate] = useState(false); 
-    const touchStartTimeRef = useRef(0); // To measure how long the touch lasted
+    // NEW: State to determine if the screen size is desktop
+    const [isDesktop, setIsDesktop] = useState(false);
 
-    // --- NEW STATE FOR VIDEO READINESS (for mute/unmute) ---
-    const [isCurrentVideoReady, setIsCurrentVideoReady] = useState(false);
+    const touchStartXRef = useRef(0);
+    const touchStartYRef = useRef(0);
+    const touchTimeRef = useRef(0);
 
-    // Utility function to format duration (seconds to MM:SS) - still exists for onDuration prop, but not displayed
-    const formatDuration = (seconds) => {
-        if (isNaN(seconds) || seconds === null) return '00:00';
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = Math.floor(seconds % 60);
-        const paddedMinutes = String(minutes).padStart(2, '0');
-        const paddedSeconds = String(remainingSeconds).padStart(2, '0');
-        return `${paddedMinutes}:${paddedSeconds}`;
-    };
+    const tapThreshold = 10;
+    const swipeSensitivity = 50;
 
-    // Effect to scroll to the video section and reset carousel/mute state when a new company is selected
     useEffect(() => {
-        console.log("🐛 [selectedCompany useEffect] Triggered. isInitialMount:", isInitialMount.current);
+        // Function to check if it's a desktop screen (e.g., width >= 768px for 'md' breakpoint)
+        const handleResize = () => {
+            setIsDesktop(window.innerWidth >= 768); 
+        };
+
+        handleResize(); // Set initial value
+        window.addEventListener('resize', handleResize); // Add event listener for dynamic resizing
+        
+        return () => window.removeEventListener('resize', handleResize); // Clean up
+    }, []); // Run only once on mount
+
+    useEffect(() => {
         if (isInitialMount.current) {
-            isInitialMount.current = false; // Set to false after the first render
-            // DO NOT SCROLL on initial mount
+            isInitialMount.current = false;
         } else {
-            // ONLY SCROLL if it's NOT the initial mount (i.e., a company was clicked)
             if (videoSectionRef.current) {
                 videoSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
 
-        // Reset states relevant to the video player when company changes
-        setCurrent(0); // Go back to the first video for the new company
-        setShowVolumeIcon(false); // Hide volume icon
-        setVideoDuration(null); // Reset duration
-        setIsCurrentVideoReady(false); // Reset readiness for the new video
+        setCurrent(0);
+        setShowVolumeIcon(false); // Hide volume icon on company change
+        setShowFullscreenButton(false); // Hide fullscreen button on company change
+        setIsFullscreen(false); // Reset fullscreen state when changing company
 
-        // Initialize all videos for the new company to muted
         const initialMuteState = {};
+        const initialReadinessState = {};
         if (selectedCompany && selectedCompany.videos) {
             selectedCompany.videos.forEach((video, index) => {
-                initialMuteState[index] = true; // All videos start muted
+                initialMuteState[index] = true;
+                initialReadinessState[index] = false;
             });
         }
         setMutedStates(initialMuteState);
-        console.log("🐛 [selectedCompany useEffect] Initial mute states set:", initialMuteState);
-    }, [selectedCompany]); // Dependency array remains selectedCompany
+        setVideoReadiness(initialReadinessState);
 
-    // Fullscreen event listener
+        console.log("⚙️ useEffect [selectedCompany]: Initialized mutedStates and videoReadiness for new client.");
+    }, [selectedCompany]);
+
     useEffect(() => {
         const handleFullscreenChange = () => {
             setIsFullscreen(!!document.fullscreenElement);
         };
-
         document.addEventListener('fullscreenchange', handleFullscreenChange);
+        // Clean up the event listener when the component unmounts
         return () => {
             document.removeEventListener('fullscreenchange', handleFullscreenChange);
         };
     }, []);
 
-    // Callback to set ref for each video player
     const setVideoPlayerRef = useCallback((node, index) => {
         if (node) {
             videoRefs.current.set(index, node);
-            // console.log(`🐛 [setVideoPlayerRef] Player ref set for index ${index}. Node:`, node);
         } else {
             videoRefs.current.delete(index);
-            // console.log(`🐛 [setVideoPlayerRef] Player ref deleted for index ${index}.`);
         }
     }, []);
 
-    // Toggle Fullscreen function for a specific video
     const toggleFullscreen = useCallback((indexToFullscreen) => {
         const playerInstance = videoRefs.current.get(indexToFullscreen);
         if (playerInstance && playerInstance.wrapper) {
@@ -114,138 +112,118 @@ const Otherwork = () => {
         }
     }, []);
 
-    // Carousel Navigation Logic
-    const handleNextVideo = useCallback(() => {
-        if (selectedCompany && selectedCompany.videos && current < selectedCompany.videos.length - 1) {
-            setCurrent((prev) => prev + 1);
-            setShowVolumeIcon(false);
-            setIsCurrentVideoReady(false); // New video, reset readiness
-            console.log("➡️ [handleNextVideo] Navigating to next video. isCurrentVideoReady reset to false.");
+    const handleNavigation = useCallback((direction) => {
+        if (!selectedCompany || !selectedCompany.videos) return;
+
+        let newCurrent = current;
+        if (direction === 'next' && current < selectedCompany.videos.length - 1) {
+            newCurrent = current + 1;
+        } else if (direction === 'prev' && current > 0) {
+            newCurrent = current - 1;
+        } else {
+            return;
         }
+
+        setCurrent(newCurrent);
+        setShowVolumeIcon(false); // Hide volume icon on navigation
+        setShowFullscreenButton(false); // Hide fullscreen button on navigation
+        setIsFullscreen(false); // Exit fullscreen when navigating to a new video
+        console.log(`➡️ handleNavigation: Moved to index ${newCurrent}.`);
     }, [selectedCompany, current]);
 
-    const handlePrevVideo = useCallback(() => {
-        if (selectedCompany && selectedCompany.videos && current > 0) {
-            setCurrent((prev) => prev - 1);
-            setShowVolumeIcon(false);
-            setIsCurrentVideoReady(false); // New video, reset readiness
-            console.log("⬅️ [handlePrevVideo] Navigating to previous video. isCurrentVideoReady reset to false.");
+    // Function to show VOLUME icon temporarily after click/tap
+    const showVolumeIconTemporarily = useCallback(() => {
+        setShowVolumeIcon(true);
+        if (volumeIconTimeoutRef.current) {
+            clearTimeout(volumeIconTimeoutRef.current);
         }
-    }, [selectedCompany, current]);
+        volumeIconTimeoutRef.current = setTimeout(() => {
+            setShowVolumeIcon(false);
+        }, 1000); // Volume icon visible for 1 second after click/tap
+    }, []);
 
-    // Toggle mute state for the CURRENT video in the carousel
-    const toggleMute = useCallback(() => {
-        console.log("🔊 [toggleMute] Called. Current video:", current);
-        console.log("🔊 [toggleMute] isCurrentVideoReady:", isCurrentVideoReady);
-        console.log("🔊 [toggleMute] mutedStates[current] BEFORE update:", mutedStates[current]);
+    const toggleMute = useCallback((event) => {
+        if (event) {
+            event.stopPropagation(); // Prevent event from bubbling up to the video wrapper's click
+        }
 
-        if (!isCurrentVideoReady) {
-            console.warn("⚠️ [toggleMute] Video player NOT READY. Skipping volume change.");
+        console.log(`🔊 toggleMute called for current: ${current}. VideoReadiness[current]: ${videoReadiness[current]}. Current mute state: ${mutedStates[current]}`);
+
+        if (!videoReadiness[current]) {
+            console.warn("⚠️ [toggleMute] Video player NOT READY yet. Skipping volume change.");
             return;
         }
 
         setMutedStates((prev) => {
             const newMutedState = !prev[current];
-            console.log(`🔊 [toggleMute] Setting mutedStates for video ${current} to: ${newMutedState}`);
-
-            // Direct setVolume call added for robustness, though prop should usually suffice
-            const playerInstance = videoRefs.current.get(current);
-            if (playerInstance && playerInstance.setVolume) {
-                playerInstance.setVolume(newMutedState ? 0 : 1);
-                console.log(`🔊 [toggleMute] Attempted direct setVolume(${newMutedState ? 0 : 1}) on player instance.`);
-            } else if (playerInstance) {
-                console.warn(`⚠️ [toggleMute] playerInstance.setVolume not found, relying on prop re-render.`);
-            } else {
-                console.warn(`⚠️ [toggleMute] playerInstance not found for direct setVolume.`);
-            }
+            console.log(`✅ Muting state updated for index ${current}: from ${prev[current]} to ${newMutedState}.`);
             return { ...prev, [current]: newMutedState };
         });
 
-        setShowVolumeIcon(true);
-        setTimeout(() => {
-            setShowVolumeIcon(false);
-        }, 1000);
-    }, [current, isCurrentVideoReady, mutedStates]); // Add mutedStates to dependencies for accurate logging
+        // Always show volume icon temporarily after mute toggle
+        showVolumeIconTemporarily(); 
+    }, [current, videoReadiness, mutedStates, showVolumeIconTemporarily]);
 
-    // Keyboard Navigation for video carousel
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === "ArrowLeft") {
-                handlePrevVideo();
+                handleNavigation('prev');
             }
             if (e.key === "ArrowRight") {
-                handleNextVideo();
+                handleNavigation('next');
             }
         };
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [handlePrevVideo, handleNextVideo]);
+    }, [handleNavigation]);
 
-    const touchStartXRef = useRef(null);
-    const touchEndXRef = useRef(null);
-    
-    const handleTouchStart = (e) => {
-      touchStartXRef.current = e.touches[0].clientX;
-      touchStartTimeRef.current = Date.now();
-      setTapCandidate(true);
+    const handleVideoTouchStart = (e) => {
+        touchStartXRef.current = e.touches[0].clientX;
+        touchStartYRef.current = e.touches[0].clientY;
+        touchTimeRef.current = Date.now();
+        // For touch, show volume icon temporarily on touch start
+        showVolumeIconTemporarily(); 
     };
-    
-    const handleTouchMove = (e) => {
-      touchEndXRef.current = e.touches[0].clientX;
-      const distance = Math.abs(touchEndXRef.current - touchStartXRef.current);
-      if (distance > touchMoveThreshold) {
-        setTapCandidate(false);
-      }
-    };
-    
-    // Touch sensitivity and tap duration thresholds
-    const sensitivity = 50; // Minimum px for swipe
-    const tapMaxDuration = 250; // ms
-    const touchMoveThreshold = 10; // px
 
-    const handleTouchEnd = () => {
-      const distance = touchStartXRef.current - touchEndXRef.current;
-      const touchDuration = Date.now() - touchStartTimeRef.current;
-
-      if (tapCandidate && touchDuration < tapMaxDuration) {
-        // It's a tap if it was a candidate and short enough duration
-        toggleMute();
-        console.log("✔️ [TouchEnd] Detected a TAP for mute/unmute.");
-      } else if (Math.abs(distance) > sensitivity) {
-        // It's a swipe if movement was significant
-        if (distance > sensitivity) {
-          handleNextVideo();
-          console.log("➡️ [TouchEnd] Detected a SWIPE LEFT for next video.");
-        } else { // distance < -sensitivity
-          handlePrevVideo();
-          console.log("⬅️ [TouchEnd] Detected a SWIPE RIGHT for previous video.");
+    const handleVideoTouchMove = (e) => {
+        const deltaX = Math.abs(e.touches[0].clientX - touchStartXRef.current);
+        const deltaY = Math.abs(e.touches[0].clientY - touchStartYRef.current);
+        if (deltaX < tapThreshold && deltaY < tapThreshold || Math.abs(deltaX) > Math.abs(deltaY)) {
+            e.preventDefault();
         }
-      } else {
-        console.log("ℹ️ [TouchEnd] Neither a clear tap nor a clear swipe. No action.");
-      }
+    };
 
-      // Reset all touch states
-      touchStartXRef.current = 0;
-      touchEndXRef.current = 0;
-      setTapCandidate(false);
-      touchStartTimeRef.current = 0;
+    const handleVideoTouchEnd = (e) => {
+        const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
+        const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartYRef.current);
+        const touchDuration = Date.now() - touchTimeRef.current;
+
+        if (touchDuration < 300 && Math.abs(deltaX) < tapThreshold && deltaY < tapThreshold) {
+            // If it's a tap, toggle mute. showVolumeIconTemporarily is already called in touchStart.
+            toggleMute(e); 
+        } else if (Math.abs(deltaX) > swipeSensitivity && deltaY < Math.abs(deltaX) / 2) {
+            if (deltaX > 0) {
+                handleNavigation('prev');
+            } else {
+                handleNavigation('next');
+            }
+        }
+        touchStartXRef.current = 0;
+        touchStartYRef.current = 0;
+        touchTimeRef.current = 0;
     };
 
     const currentVideoData = selectedCompany?.videos?.[current];
 
     return (
         <div className="relative bg-black text-white w-full flex flex-col items-center py-12 sm:py-16 px-4 overflow-hidden min-h-screen">
-            {/* Main heading for the work section */}
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 sm:mb-12 text-purple-400 font-Mightail text-center">My Works</h1>
 
-            {/* Two-column layout container - equally split (w-1/2 for lg screens), stacked on smaller */}
             <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto gap-6 sm:gap-8 mt-4">
-                {/* Left Side: Company Logos / Clients List - takes full width on small screens, 1/2 on large */}
                 <div className="w-full lg:w-2/3 p-4 sm:p-6 bg-black rounded-xl shadow-lg ">
                     <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-purple-300 mb-6 sm:mb-8 font-Mightail">
                         Clients
                     </h2>
-                    {/* Adjusted grid for better mobile responsiveness */}
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4">
                         {companies.map((company) => (
                             <motion.div
@@ -263,7 +241,6 @@ const Otherwork = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.3 }}
                             >
-                                {/* Background image (company's logo) */}
                                 <div
                                     className={`absolute inset-0 z-0 transition-opacity duration-300 ease-in-out
                                         group-hover:opacity-30
@@ -275,7 +252,6 @@ const Otherwork = () => {
                                         backgroundPosition: 'center',
                                     }}
                                 ></div>
-                                {/* Dark overlay for readability */}
                                 <div
                                     className={`absolute inset-0 z-0 bg-black transition-opacity duration-300 ease-in-out
                                         ${selectedCompany.id === company.id ? 'opacity-60' : 'opacity-80'}
@@ -283,7 +259,6 @@ const Otherwork = () => {
                                     `}
                                 ></div>
 
-                                {/* Content (Logo, Name, Description, Button) */}
                                 <img
                                     src={company.logo}
                                     alt={`${company.name} Logo`}
@@ -291,21 +266,19 @@ const Otherwork = () => {
                                     draggable={false}
                                 />
                                 <p className="relative z-10 text-sm sm:text-base font-semibold text-white text-center font-LinearSans">{company.name}</p>
-                                {/* Company description - adjusted font size and line clamp for mobile */}
                                 <p className="relative z-10 text-xs text-gray-300 text-center mt-1 font-LinearSans leading-tight overflow-hidden line-clamp-3">
                                     {company.description}
                                 </p>
 
-                                {/* "Show Works" Button (always visible) */}
                                 <motion.button
                                     onClick={(e) => {
-                                        e.stopPropagation(); // Prevent company div click from firing
+                                        e.stopPropagation();
                                         setSelectedCompany(company);
                                     }}
                                     className="relative z-20 px-3 py-1.5 sm:px-4 sm:py-2 bg-purple-600 text-white rounded-lg shadow-md
-                                            opacity-100 transition-opacity duration-300
-                                            mt-3 whitespace-nowrap text-sm sm:text-base
-                                            hover:bg-purple-700 transform hover:scale-105"
+                                         opacity-100 transition-opacity duration-300
+                                         mt-3 whitespace-nowrap text-sm sm:text-base
+                                         hover:bg-purple-700 transform hover:scale-105"
                                     aria-label={`Show works for ${company.name}`}
                                     initial={{ opacity: 1, y: 0 }}
                                     whileHover={{ y: 0, opacity: 1 }}
@@ -319,7 +292,6 @@ const Otherwork = () => {
                     </div>
                 </div>
 
-                {/* Right Side: Dynamic Video Carousel - takes full width on small screens, 1/2 on large */}
                 <div
                     id="other-work"
                     ref={videoSectionRef}
@@ -340,12 +312,9 @@ const Otherwork = () => {
                     </h2>
 
                     {selectedCompany.videos && selectedCompany.videos.length > 0 ? (
-                        <div
-                            className="relative w-full h-[50vh] sm:h-[60vh] lg:h-[70vh] flex items-center justify-center"
-                        >
-                            {/* Previous Video Button (left arrow) - Increased z-index */}
+                        <div className="relative w-full h-[50vh] sm:h-[60vh] lg:h-[70vh] flex items-center justify-center">
                             <button
-                                onClick={handlePrevVideo}
+                                onClick={() => handleNavigation('prev')}
                                 disabled={current === 0}
                                 className={`absolute left-2 sm:left-4 z-[110] bg-white/10 p-3 sm:p-4 rounded-full text-white transition-all duration-300 flex items-center justify-center shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400
                                     ${current === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/20'}`}
@@ -354,7 +323,6 @@ const Otherwork = () => {
                                 <FaChevronLeft size={24} sm:size={30} />
                             </button>
 
-                            {/* Inner carousel track that holds all video elements */}
                             <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
                                 {selectedCompany.videos.map((video, index) => {
                                     let positionRelativeToCurrent = index - current;
@@ -380,6 +348,8 @@ const Otherwork = () => {
                                     }
 
                                     const isMiddle = positionRelativeToCurrent === 0;
+                                    const isNext = positionRelativeToCurrent === 1;
+                                    const isPrevious = positionRelativeToCurrent === -1;
 
                                     const widthClass = isMiddle
                                         ? 'w-[95%] sm:w-[90%] md:w-[85%] lg:w-[900px]'
@@ -405,107 +375,121 @@ const Otherwork = () => {
                                                 scale: { duration: 0.3 },
                                                 opacity: { duration: 0.2 },
                                             }}
+                                            // Desktop Hover: Show/Hide fullscreen button
+                                            onMouseEnter={isMiddle ? () => setShowFullscreenButton(true) : undefined}
+                                            onMouseLeave={isMiddle ? () => setShowFullscreenButton(false) : undefined}
+                                            // Click (Desktop) / Tap (Mobile): Toggle mute (which triggers volume icon)
+                                            onClick={isMiddle ? (e) => {
+                                                // Prevent event from bubbling if click originated from our control buttons
+                                                if (e.target.closest('.volume-controls') || e.target.closest('.fullscreen-button')) return;
+                                                toggleMute(e);
+                                            } : undefined}
+                                            onTouchStart={isMiddle ? handleVideoTouchStart : undefined}
+                                            onTouchMove={isMiddle ? handleVideoTouchMove : undefined}
+                                            onTouchEnd={isMiddle ? handleVideoTouchEnd : undefined}
                                         >
-                                            {isMiddle && (
-  <div
-    className="absolute inset-0 z-10 pointer-events-auto"
-    style={{ touchAction: 'manipulation' }} // Add this inline style
-    onClick={toggleMute}
-    onTouchStart={handleTouchStart} // Keep these if you have other logic
-    onTouchMove={handleTouchMove}
-    onTouchEnd={handleTouchEnd}
-  ></div>
-)}
-
-                                            <ReactPlayer
-                                                ref={node => setVideoPlayerRef(node, index)}
-                                                url={video.url}
-                                                playing={isMiddle} // Only play the middle video
-                                                loop
-                                                volume={mutedStates[index] ? 0 : 1} // Volume controlled by state
-                                                controls={false}
-                                                width="100%"
-                                                height="100%"
-                                                onDuration={setVideoDuration}
-                                                light={!isMiddle} // Show thumbnail for non-active videos
-                                                playIcon={ // Displayed when light={true}
-                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl">
-                                                        <FaChevronRight size={40} className="text-white" />
-                                                    </div>
-                                                }
-                                                onReady={() => {
-                                                    if (isMiddle) { // Only set ready for the currently active video
-                                                        setIsCurrentVideoReady(true);
-                                                        console.log(`✅ [onReady] Video ${index} is READY! current: ${current}, isMiddle: ${isMiddle}`);
-                                                        console.log(`✅ [onReady] Initial mutedStates[${index}] upon ready: ${mutedStates[index]}`);
+                                            <Suspense fallback={<div className="absolute inset-0 flex items-center justify-center bg-gray-900 text-white">Loading Video...</div>}>
+                                                <LazyReactPlayer
+                                                    ref={node => setVideoPlayerRef(node, index)}
+                                                    url={video.url}
+                                                    playing={isMiddle}
+                                                    loop
+                                                    volume={mutedStates[index] ? 0 : 1}
+                                                    controls={false}
+                                                    width="100%"
+                                                    height="100%"
+                                                    light={!(isMiddle || isNext || isPrevious)}
+                                                    playIcon={
+                                                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl">
+                                                            <FaChevronRight size={40} className="text-white" />
+                                                        </div>
                                                     }
-                                                }}
-                                                onStart={() => console.log(`▶️ [onStart] Video ${index} started.`)}
-                                                onPlay={() => console.log(`▶️ [onPlay] Video ${index} is playing.`)}
-                                                onPause={() => console.log(`⏸️ [onPause] Video ${index} is paused.`)}
-                                                onEnded={() => console.log(`⏹️ [onEnded] Video ${index} ended.`)}
-                                                onError={(e) => console.error(`❌ [onError] Video ${index} error:`, e)}
-                                                config={{
-                                                    vimeo: {
-                                                        playerOptions: { dnt: true, byline: false, portrait: false, title: false }
-                                                    },
-                                                    youtube: {
-                                                        playerVars: {
-                                                            disablekb: 1,
-                                                            showinfo: 0,
-                                                            rel: 0,
-                                                            controls: 0,
-                                                            modestbranding: 1,
-                                                            iv_load_policy: 3,
+                                                    onReady={() => {
+                                                        console.log(`✅ Player for index ${index} READY.`);
+                                                        setVideoReadiness(prev => ({ ...prev, [index]: true }));
+                                                        console.log(`🚀 videoReadiness for index ${index} set to TRUE.`);
+                                                    }}
+                                                    onPlay={() => console.log(`▶️ Player for index ${index} playing.`)}
+                                                    onPause={() => console.log(`⏸️ Player for index ${index} paused.`)}
+                                                    onBuffer={() => console.log(`⏳ Player for index ${index} buffering.`)}
+                                                    onBufferEnd={() => console.log(`✔️ Player for index ${index} buffer ended.`)}
+                                                    playsinline
+                                                    // Re-added pointerEvents: 'none' to allow wrapper to handle mouse events reliably
+                                                    style={isMiddle ? { pointerEvents: 'none' } : {}} 
+                                                    config={{
+                                                        vimeo: {
+                                                            playerOptions: { dnt: true, byline: false, portrait: false, title: false }
+                                                        },
+                                                        youtube: {
+                                                            playerVars: {
+                                                                disablekb: 1,
+                                                                showinfo: 0,
+                                                                rel: 0,
+                                                                controls: 0,
+                                                                modestbranding: 1,
+                                                                iv_load_policy: 3,
+                                                            }
                                                         }
-                                                    }
-                                                }}
-                                            />
-                                            {/* Mute/Unmute Icon Overlay */}
+                                                    }}
+                                                />
+                                            </Suspense>
+
+                                            {/* VOLUME Controls Overlay (Temporary, centered bottom) */}
                                             <AnimatePresence>
                                                 {isMiddle && showVolumeIcon && (
                                                     <motion.div
-                                                        initial={{ opacity: 0, scale: 0.8 }}
-                                                        animate={{ opacity: 1, scale: 1 }}
-                                                        exit={{ opacity: 0, scale: 0.8 }}
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: 20 }}
                                                         transition={{ duration: 0.3 }}
                                                         className={`
-                                                            absolute z-20 bg-black/60 text-white rounded-full
+                                                            volume-controls absolute z-20 bg-black/60 text-white rounded-full
                                                             flex items-center justify-center p-2 sm:p-3
-                                                            bottom-3 right-3 sm:bottom-4 sm:right-4
+                                                            bottom-3 left-1/2 -translate-x-1/2 
                                                         `}
+                                                        // Prevent clicks on the controls from bubbling to the video wrapper
+                                                        onClick={e => e.stopPropagation()}
                                                     >
-                                                        {mutedStates[current]
-                                                            ? <FaVolumeMute size={20} sm:size={22} />
-                                                            : <FaVolumeUp size={20} sm:size={22} />
-                                                        }
+                                                        <button
+                                                            onClick={toggleMute} 
+                                                            className="text-white flex items-center justify-center p-1"
+                                                            aria-label={mutedStates[current] ? "Unmute video" : "Mute video"}
+                                                        >
+                                                            {mutedStates[current] ? <FaVolumeMute size={20} sm:size={22} /> : <FaVolumeUp size={20} sm:size={22} />}
+                                                        </button>
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
 
-                                            {/* Fullscreen Button */}
-                                            {isMiddle && (
-                                                <button
-                                                    onClick={() => toggleFullscreen(index)}
-                                                    className={`absolute
-                                                        top-2 left-2                      
-                                                        md:top-5 md:left-5             
-                                                        md:ml-75 md:mt-5                  
-                                                        z-[105] text-white rounded-full p-2 sm:p-3 bg-black/60 transition-all duration-300 shadow-lg hover:bg-purple-700
-                                                    `}
-                                                    aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-                                                >
-                                                    {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
-                                                </button>
-                                            )}
+                                            {/* FULLSCREEN Button (Hover-visible, desktop-only, bottom-right) */}
+                                            <AnimatePresence>
+                                                {isMiddle && showFullscreenButton && isDesktop && ( // Added isDesktop condition here
+                                                    <motion.button
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: 20 }}
+                                                        transition={{ duration: 0.3 }}
+                                                        onClick={() => toggleFullscreen(index)}
+                                                        className={`
+                                                            fullscreen-button absolute z-20 bg-black/60 text-white rounded-full
+                                                            flex items-center justify-center p-2 sm:p-3
+                                                            bottom-5 right-5 // Distinct and common position
+                                                            shadow-lg hover:bg-purple-700
+                                                        `}
+                                                        aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                                                    >
+                                                        {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+                                                    </motion.button>
+                                                )}
+                                            </AnimatePresence>
+
                                         </motion.div>
                                     );
                                 })}
                             </div>
 
-                            {/* Next Video Button (right arrow) */}
                             <button
-                                onClick={handleNextVideo}
+                                onClick={() => handleNavigation('next')}
                                 disabled={current === selectedCompany.videos.length - 1}
                                 className={`absolute right-2 sm:right-4 z-[110] bg-white/10 p-3 sm:p-4 rounded-full text-white transition-all duration-300 flex items-center justify-center shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400
                                     ${current === selectedCompany.videos.length - 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/20'}`}
@@ -518,7 +502,6 @@ const Otherwork = () => {
                         <p className="text-gray-400 text-base sm:text-lg text-center font-LinearSans mt-8">No videos available for {selectedCompany.name} yet.</p>
                     )}
 
-                    {/* Display current video title and description below the carousel */}
                     {currentVideoData && (
                         <motion.div
                             key={current + "_description"}
@@ -536,7 +519,6 @@ const Otherwork = () => {
                         </motion.div>
                     )}
 
-                    {/* Dots Navigation */}
                     {selectedCompany.videos.length > 1 && (
                         <div className="flex justify-center mt-6 sm:mt-8 gap-2 sm:gap-3">
                             {selectedCompany.videos.map((_, index) => (
@@ -544,8 +526,8 @@ const Otherwork = () => {
                                     key={index}
                                     onClick={() => {
                                         setCurrent(index);
-                                        setShowVolumeIcon(false);
-                                        setIsCurrentVideoReady(false); // Reset readiness when navigating via dots
+                                        setShowVolumeIcon(false); // Hide controls on dot navigation
+                                        setShowFullscreenButton(false); // Hide controls on dot navigation
                                     }}
                                     className={`
                                         p-1.5 sm:p-2 rounded-full cursor-pointer transition-all duration-300
@@ -553,7 +535,6 @@ const Otherwork = () => {
                                         hover:scale-125
                                     `}
                                 >
-                                
                                 </button>
                             ))}
                         </div>
