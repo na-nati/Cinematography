@@ -92,6 +92,26 @@ export const companies = [
         title: "Four Winds - Sustainable Architecture",
         description: "Highlighting innovative and eco-friendly building designs by Four Winds.",
       },
+      {
+        url: "https://youtube.com/shorts/npYz3H4Wxd0", // Replace with actual Four Winds videos
+        title: "Four Winds - Nature's Resilience",
+        description: "Capturing the enduring beauty of landscapes and the perseverance of life for Four Winds, featuring breathtaking views and compelling natural phenomena.",
+      },
+      {
+        url: "https://youtube.com/shorts/16uMLLvCZyA", // Replace with actual Four Winds videos
+        title: "Four Winds - Nature's Resilience",
+        description: "Capturing the enduring beauty of landscapes and the perseverance of life for Four Winds, featuring breathtaking views and compelling natural phenomena.",
+      },
+      {
+        url: "https://youtube.com/shorts/_Ym7LWNNgIQ", // Replace with actual Four Winds videos
+        title: "Four Winds - Nature's Resilience",
+        description: "Capturing the enduring beauty of landscapes and the perseverance of life for Four Winds, featuring breathtaking views and compelling natural phenomena.",
+      },
+      {
+        url: "https://youtube.com/shorts/3Si_ZQXk1UE", // Replace with actual Four Winds videos
+        title: "Four Winds - Nature's Resilience",
+        description: "Capturing the enduring beauty of landscapes and the perseverance of life for Four Winds, featuring breathtaking views and compelling natural phenomena.",
+      },
     ],
   },
   {
@@ -101,22 +121,22 @@ export const companies = [
     description: "Developed vibrant and stylish video advertisements that perfectly capture the essence of their modern hair care brand. Discover their beauty.",
     videos: [
       {
-        url: "https://youtube.com/shorts/N_xLMs9dfjg", // Placeholder: Replace with actual Ewawa video URL
+        url: "https://youtube.com/shorts/qSvmrjAqOZQ", // Placeholder: Replace with actual Ewawa video URL
         title: "Ewawa Hair - Style Transformations",
         description: "Vibrant and stylish video showcasing stunning hair transformations for Ewawa Hair.",
       },
       {
-        url: "https://youtube.com/shorts/z4pFqxCg66s", // Placeholder: Replace with actual Ewawa video URL
+        url: "https://youtube.com/shorts/wjfdktlPd6U", // Placeholder: Replace with actual Ewawa video URL
         title: "Ewawa Hair - Product Showcase",
         description: "Highlighting the quality and benefits of Ewawa Hair care products.",
       },
       {
-        url: "https://youtube.com/shorts/9-4UL38Z_p4", // Placeholder: Replace with actual Ewawa video URL
+        url: "https://youtube.com/shorts/esvcbplIevE", // Placeholder: Replace with actual Ewawa video URL
         title: "Ewawa Hair - Product Showcase",
         description: "Highlighting the quality and benefits of Ewawa Hair care products.",
       },
       {
-        url: "https://youtube.com/shorts/pdFctTmguTE", // Placeholder: Replace with actual Ewawa video URL
+        url: "https://youtube.com/shorts/lf7KMhetmoo", // Placeholder: Replace with actual Ewawa video URL
         title: "Ewawa Hair - Product Showcase",
         description: "Highlighting the quality and benefits of Ewawa Hair care products.",
       },
@@ -134,12 +154,12 @@ export const companies = [
     description: "Shot and directed their latest fashion lookbook, bringing their unique apparel designs to life with dynamic visuals. Explore their collection.",
     videos: [
       {
-        url: "https://vimeo.com/your-sheqela-video-1-url", // Placeholder: Replace with actual Sheqela video URL
+        url: "https://youtube.com/shorts/O15jczVjYtA", // Placeholder: Replace with actual Sheqela video URL
         title: "Sheqela - Latest Collection",
         description: "Dynamic visuals for their vibrant summer apparel.",
       },
       {
-        url: "https://vimeo.com/your-sheqela-video-2-url", // Placeholder: Replace with actual Sheqela video URL
+        url: "https://youtube.com/shorts/9Ug8uKn-WXw", // Placeholder: Replace with actual Sheqela video URL
         title: "Sheqela - Street Style",
         description: "Capturing urban fashion trends with Sheqela designs.",
       },

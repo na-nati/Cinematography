@@ -10,6 +10,7 @@ import Skill from "./components/Skill";
 import Service from "./components/Service";
 import Process from "./components/Process";
 import Testimonials from "./components/Testimonials";
+import OutroAnimations from "./components/OutroAnimation";
 // Import the Navbar
 import Navbar from "./components/Navbar";
 
@@ -35,6 +36,10 @@ const MainPortfolioPage = ({ heroButtonRef }) => {
       {/* Your existing sections */}
       <section id="other-work">
         <Otherwork />
+      </section>
+
+      <section id="outro-animations">
+        <OutroAnimations />
       </section>
 
       <section id="about">
