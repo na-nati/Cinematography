@@ -507,6 +507,7 @@ const Otherwork = () => {
                                                 </AnimatePresence>
 
      {/* FULLSCREEN Button */}
+{/* FULLSCREEN Button */}
 <AnimatePresence>
     {isMiddle && (showFullscreenButton || isFullscreen) && (
         <motion.button
@@ -515,25 +516,26 @@ const Otherwork = () => {
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.3 }}
             onClick={() => toggleFullscreen(index)}
-            onTouchStart={(e) => {
-                e.stopPropagation(); // Prevent touch from bubbling to parent
-                toggleFullscreen(index); // Trigger fullscreen immediately on touch start
+            onTouchEnd={(e) => {
+                e.stopPropagation();
+                toggleFullscreen(index);
             }}
+            onTouchStart={(e) => e.stopPropagation()}
             className={`
-                fullscreen-button absolute z-30 bg-black/60 text-white rounded-full
-                flex items-center justify-center
+                fullscreen-button absolute z-50 bg-purple-600/90 text-white rounded-full
+                flex items-center justify-center cursor-pointer
                 ${isDesktop 
-                    ? 'p-2 sm:p-3 bottom-5 right-5' 
-                    : 'p-3 bottom-30 right-5 w-12 h-12'
+                    ? 'p-2 sm:p-3 bottom-5 right-5 w-10 h-10' 
+                    : 'p-3 bottom-24 left-1/2 -translate-x-1/2 w-14 h-14'
                 }
-                shadow-lg hover:bg-purple-700
+                shadow-lg hover:bg-purple-700 active:scale-95 transition-transform
             `}
             aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         >
             {isFullscreen ? (
-                <Minimize size={isDesktop ? 20 : 24} />
+                <Minimize size={isDesktop ? 20 : 26} />
             ) : (
-                <Maximize size={isDesktop ? 20 : 24} />
+                <Maximize size={isDesktop ? 20 : 26} />
             )}
         </motion.button>
     )}
