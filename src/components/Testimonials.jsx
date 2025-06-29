@@ -13,7 +13,7 @@ const Testimonials = () => {
     {
       quote: "Beyond impressed with the creativity and professionalism. The results speak for themselves.",
       name: "Lydia M.",
-      title: "Musician",
+      title: "Social Media Manager",
       rating: 5,
     },
     {

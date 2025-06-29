@@ -16,16 +16,17 @@ const Otherwork = () => {
     const isInitialMount = useRef(true);
     const volumeIconTimeoutRef = useRef(null);
     const currentRef = useRef(0);
+    const fullscreenVideoRef = useRef(null);
 
     const [selectedCompany, setSelectedCompany] = useState(companies[0]);
     const [current, setCurrent] = useState(0);
     const [mutedStates, setMutedStates] = useState({});
     const [videoReadiness, setVideoReadiness] = useState({});
     const [showVolumeIcon, setShowVolumeIcon] = useState(false);
-    const [showFullscreenButton, setShowFullscreenButton] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isDesktop, setIsDesktop] = useState(false);
     const [isSectionVisible, setIsSectionVisible] = useState(true);
+    const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
     const touchStartXRef = useRef(0);
     const touchStartYRef = useRef(0);
@@ -46,6 +47,7 @@ const Otherwork = () => {
                         if (player && player.pause) {
                             try {
                                 player.pause();
+                                setIsVideoPlaying(false);
                                 setMutedStates(prev => ({ ...prev, [index]: true }));
                             } catch (error) {
                                 console.warn("Error handling video on scroll:", error);
@@ -95,8 +97,8 @@ const Otherwork = () => {
 
         setCurrent(0);
         setShowVolumeIcon(false);
-        setShowFullscreenButton(false);
         setIsFullscreen(false);
+        setIsVideoPlaying(false);
 
         const initialMuteState = {};
         const initialReadinessState = {};
@@ -113,30 +115,70 @@ const Otherwork = () => {
     // --- EFFECT: Listen for native fullscreen changes ---
     useEffect(() => {
         const handleFullscreenChange = () => {
-            setIsFullscreen(!!document.fullscreenElement);
+            const isFullscreenNow = !!document.fullscreenElement;
+            setIsFullscreen(isFullscreenNow);
+            
+            if (!isFullscreenNow && fullscreenVideoRef.current) {
+                // Restore normal state when exiting fullscreen
+                fullscreenVideoRef.current = null;
+            }
         };
+        
         document.addEventListener('fullscreenchange', handleFullscreenChange);
         return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
     }, []);
 
     const setVideoPlayerRef = useCallback((node, index) => {
-        if (node) videoRefs.current.set(index, node);
-        else videoRefs.current.delete(index);
+        if (node) {
+            videoRefs.current.set(index, node);
+            if (fullscreenVideoRef.current === index) {
+                // If this is the fullscreen video, ensure it's visible
+                node.wrapper.style.display = 'block';
+            }
+        } else {
+            videoRefs.current.delete(index);
+        }
     }, []);
 
     const toggleFullscreen = useCallback((index) => {
         const playerInstance = videoRefs.current.get(index);
-        if (playerInstance?.wrapper) {
-            if (!document.fullscreenElement) {
-                playerInstance.wrapper.requestFullscreen().catch(console.error);
-            } else {
+        if (!playerInstance) return;
+
+        // Set as the active fullscreen video
+        fullscreenVideoRef.current = index;
+        
+        if (!document.fullscreenElement) {
+            // Enter fullscreen
+            const playerWrapper = playerInstance.wrapper;
+            
+            // Mobile fullscreen workaround
+            if (playerWrapper.requestFullscreen) {
+                playerWrapper.requestFullscreen().catch(console.error);
+            } else if (playerWrapper.webkitRequestFullscreen) { /* Safari */
+                playerWrapper.webkitRequestFullscreen();
+            } else if (playerWrapper.msRequestFullscreen) { /* IE11 */
+                playerWrapper.msRequestFullscreen();
+            }
+        } else {
+            // Exit fullscreen
+            if (document.exitFullscreen) {
                 document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) { /* Safari */
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { /* IE11 */
+                document.msExitFullscreen();
             }
         }
     }, []);
 
     const handleNavigation = useCallback((direction) => {
         if (!selectedCompany?.videos?.length) return;
+
+        // Exit fullscreen when navigating
+        if (document.fullscreenElement) {
+            if (document.exitFullscreen) document.exitFullscreen();
+            setIsFullscreen(false);
+        }
 
         const prevVideoPlayer = videoRefs.current.get(currentRef.current);
         if (prevVideoPlayer) {
@@ -157,8 +199,7 @@ const Otherwork = () => {
 
         setCurrent(newCurrent);
         setShowVolumeIcon(false);
-        setShowFullscreenButton(false);
-        setIsFullscreen(false);
+        setIsVideoPlaying(false);
     }, [selectedCompany]);
 
     // --- EFFECT: Manage video play/pause on `current` change ---
@@ -171,10 +212,13 @@ const Otherwork = () => {
                         if (player.getInternalPlayer() && !isDesktop) {
                             player.getInternalPlayer().muted = true;
                         }
-                        player.play().catch(console.warn);
+                        player.play().then(() => {
+                            setIsVideoPlaying(true);
+                        }).catch(console.warn);
                     } else {
                         player.pause();
                         player.seekTo(0);
+                        setIsVideoPlaying(false);
                     }
                 } catch (error) {
                     console.warn("Error controlling video:", error);
@@ -191,7 +235,6 @@ const Otherwork = () => {
 
     const showControlsOnInteraction = useCallback(() => {
         setShowVolumeIcon(true);
-        setShowFullscreenButton(true);
         
         if (volumeIconTimeoutRef.current) {
             clearTimeout(volumeIconTimeoutRef.current);
@@ -199,7 +242,6 @@ const Otherwork = () => {
         
         volumeIconTimeoutRef.current = setTimeout(() => {
             setShowVolumeIcon(false);
-            setShowFullscreenButton(false);
         }, isDesktop ? 1000 : 3000);
     }, [isDesktop]);
 
@@ -227,14 +269,14 @@ const Otherwork = () => {
         showControlsOnInteraction();
     }, [isDesktop, showControlsOnInteraction]);
 
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (e.key === "ArrowLeft") handleNavigation('prev');
-            if (e.key === "ArrowRight") handleNavigation('next');
-        };
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [handleNavigation]);
+    const handleVideoPlay = useCallback(() => {
+        setIsVideoPlaying(true);
+        showControlsOnInteraction();
+    }, [showControlsOnInteraction]);
+
+    const handleVideoPause = useCallback(() => {
+        setIsVideoPlaying(false);
+    }, []);
 
     const handleVideoTouchStart = (e) => {
         touchStartXRef.current = e.touches[0].clientX;
@@ -424,8 +466,8 @@ const Otherwork = () => {
                                                     scale: { duration: 0.3 },
                                                     opacity: { duration: 0.2 },
                                                 }}
-                                                onMouseEnter={isMiddle && isDesktop ? () => setShowFullscreenButton(true) : undefined}
-                                                onMouseLeave={isMiddle && isDesktop ? () => setShowFullscreenButton(false) : undefined}
+                                                onMouseEnter={isMiddle && isDesktop ? showControlsOnInteraction : undefined}
+                                                onMouseLeave={isMiddle && isDesktop ? () => setShowVolumeIcon(false) : undefined}
                                                 onClick={isMiddle && isDesktop ? (e) => {
                                                     if (e.target.closest('.volume-controls') || e.target.closest('.fullscreen-button')) return;
                                                     toggleMute(e);
@@ -438,7 +480,7 @@ const Otherwork = () => {
                                                     <LazyReactPlayer
                                                         ref={node => setVideoPlayerRef(node, index)}
                                                         url={video.url}
-                                                        playing={isMiddle && isSectionVisible}
+                                                        playing={isMiddle && isSectionVisible && !isFullscreen}
                                                         loop
                                                         volume={mutedStates[index] ? 0 : 1}
                                                         controls={false}
@@ -464,6 +506,8 @@ const Otherwork = () => {
                                                                 }
                                                             }
                                                         }}
+                                                        onPlay={handleVideoPlay}
+                                                        onPause={handleVideoPause}
                                                         playsinline
                                                         style={isMiddle ? { pointerEvents: 'none' } : {}}
                                                         config={{
@@ -490,7 +534,7 @@ const Otherwork = () => {
                                                             animate={{ opacity: 1, y: 0 }}
                                                             exit={{ opacity: 0, y: 20 }}
                                                             transition={{ duration: 0.3 }}
-                                                            className="volume-controls absolute z-20 bg-black/60 text-white rounded-full flex items-center justify-center p-2 sm:p-3 bottom-3 left-1/2 -translate-x-1/2"
+                                                            className="volume-controls absolute z-20 bg-black/60 text-white rounded-full flex items-center justify-center p-2 sm:p-3 bottom-10 left-1/2 -translate-x-1/2"
                                                             onClick={toggleMute}
                                                         >
                                                             <button
@@ -506,38 +550,38 @@ const Otherwork = () => {
                                                     )}
                                                 </AnimatePresence>
 
-     {/* FULLSCREEN Button */}
-<AnimatePresence>
-    {isMiddle && (showFullscreenButton || isFullscreen) && (
-        <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.3 }}
-            onClick={() => toggleFullscreen(index)}
-            onTouchStart={(e) => {
-                e.stopPropagation(); // Prevent touch from bubbling to parent
-                toggleFullscreen(index); // Trigger fullscreen immediately on touch start
-            }}
-            className={`
-                fullscreen-button absolute z-30 bg-black/60 text-white rounded-full
-                flex items-center justify-center
-                ${isDesktop 
-                    ? 'p-2 sm:p-3 bottom-30 right-30' 
-                    : 'p-3 bottom-30 right-5 w-12 h-12'
-                }
-                shadow-lg hover:bg-purple-700
-            `}
-            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-        >
-            {isFullscreen ? (
-                <Minimize size={isDesktop ? 20 : 24} />
-            ) : (
-                <Maximize size={isDesktop ? 20 : 24} />
-            )}
-        </motion.button>
-    )}
-</AnimatePresence>
+                                                {/* FULLSCREEN Button */}
+                                                <AnimatePresence>
+                                                    {isMiddle && (showVolumeIcon || isFullscreen || isVideoPlaying) && (
+                                                        <motion.button
+                                                            initial={{ opacity: 0, y: 20 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, y: 20 }}
+                                                            transition={{ duration: 0.3 }}
+                                                            onClick={() => toggleFullscreen(index)}
+                                                            onTouchStart={(e) => {
+                                                                e.stopPropagation();
+                                                                toggleFullscreen(index);
+                                                            }}
+                                                            className={`
+                                                                fullscreen-button absolute z-30 bg-black/60 text-white rounded-full
+                                                                flex items-center justify-center
+                                                                ${isDesktop 
+                                                                    ? 'p-2 sm:p-3 top-4 right-4 w-10 h-10' 
+                                                                    : 'p-3 top-4 right-4 w-12 h-12'
+                                                                }
+                                                                shadow-lg hover:bg-purple-700
+                                                            `}
+                                                            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                                                        >
+                                                            {isFullscreen ? (
+                                                                <Minimize size={isDesktop ? 20 : 24} />
+                                                            ) : (
+                                                                <Maximize size={isDesktop ? 20 : 24} />
+                                                            )}
+                                                        </motion.button>
+                                                    )}
+                                                </AnimatePresence>
                                             </motion.div>
                                         );
                                     })}
@@ -582,7 +626,6 @@ const Otherwork = () => {
                                             onClick={() => {
                                                 setCurrent(index);
                                                 setShowVolumeIcon(false);
-                                                setShowFullscreenButton(false);
                                             }}
                                             className={`
                                                 p-1.5 sm:p-2 rounded-full cursor-pointer transition-all duration-300

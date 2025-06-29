@@ -192,12 +192,12 @@ export const companies = [
         description: "Showcasing Nib chocolate seamless experience.",
       },
       {
-        url: "https://youtube.com/shorts/Bxo1dMRSOrg", // Placeholder: Replace with actual Nib video URL
+        url: "https://youtube.com/shorts/_qIEoo1H_Uc", // Placeholder: Replace with actual Nib video URL
         title: "Nib chocolate",
         description: "Showcasing Nib chocolate seamless experience.",
       },
       {
-        url: "https://youtube.com/shorts/Bxo1dMRSOrg", // Placeholder: Replace with actual Nib video URL
+        url: "https://youtube.com/shorts/4WbxCAgO2oM", // Placeholder: Replace with actual Nib video URL
         title: "Nib chocolate",
         description: "Showcasing Nib chocolate seamless experience.",
       },
@@ -210,7 +210,7 @@ export const companies = [
     description: "Created stylish and modern video lookbooks for A One skincare.",
     videos: [
       {
-        url: "https://youtube.com/shorts/doq358IAW7c", // Placeholder: Replace with actual A One video URL
+        url: "https://youtube.com/shorts/mk9D1sPyCo8", // Placeholder: Replace with actual A One video URL
         title: "A One skincare ",
         description: "Vibrant visuals for A One skincare.",
       },

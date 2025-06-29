@@ -192,12 +192,13 @@ const About = () => {
                             </p>
 
                             <h3 className="text-xl md:text-2xl font-bold text-purple-300 mb-4 mt-6" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
-                                Academic Background & Awards
-                            </h3>
-                            <p className="mb-4 text-lg md:text-xl leading-relaxed" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
-                                After earning my MFA in cinematography from the American Film Institute Conservatory,
-                                I received the ASC Student Heritage Award for my work on my thesis film, further cementing my love for filmmaking.
-                            </p>
+    Academic Background & Awards
+</h3>
+<p className="mb-4 text-lg md:text-xl leading-relaxed" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
+    After earning my MFA in cinematography from Tom Videography & Photography School,
+    I received the prestigious Student Excellence Award for my work on my thesis film,
+    further cementing my passion for visual storytelling.
+</p>
                         </div>
 
                         {/* Stats */}
