@@ -11,6 +11,7 @@ import {
     SiAdobepremierepro,
     SiAdobeaftereffects,
     SiAdobephotoshop,
+    SiDavinciresolve, // Import DaVinci Resolve icon
 } from 'react-icons/si';
 
 const skillCategories = [
@@ -21,6 +22,7 @@ const skillCategories = [
             { name: 'After Effects', icon: SiAdobeaftereffects },
             { name: 'Photoshop', icon: SiAdobephotoshop },
             { name: 'CapCut', icon: FaCut },
+            // Added DaVinci Resolve
         ],
     },
     {
@@ -29,6 +31,7 @@ const skillCategories = [
             { name: 'Cinematography', icon: FaFilm },
             { name: 'Camera Work', icon: FaCameraRetro },
             { name: 'Lighting Design', icon: FaRegLightbulb },
+            { name: 'DaVinci Resolve', icon: SiDavinciresolve }, 
         ],
     },
     {
@@ -101,18 +104,22 @@ const Skills = () => {
             setMousePosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
         };
 
+        const handleTouchCancel = () => { // Added touchcancel handler for consistency
+            setMousePosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+        };
+
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseleave', handleMouseLeave);
         window.addEventListener('touchmove', handleTouchMove, { passive: false }); // passive: false to allow e.preventDefault()
         window.addEventListener('touchend', handleTouchEnd);
-        window.addEventListener('touchcancel', handleTouchEnd);
+        window.addEventListener('touchcancel', handleTouchCancel); // Added event listener
 
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseleave', handleMouseLeave);
             window.removeEventListener('touchmove', handleTouchMove);
             window.removeEventListener('touchend', handleTouchEnd);
-            window.removeEventListener('touchcancel', handleTouchEnd);
+            window.removeEventListener('touchcancel', handleTouchCancel); // Clean up event listener
         };
     }, []);
 

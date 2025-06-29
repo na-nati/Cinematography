@@ -141,7 +141,7 @@ export const companies = [
         description: "Highlighting the quality and benefits of Ewawa Hair care products.",
       },
       {
-        url: "https://youtube.com/shorts/eSFLLdVVtQs", // Placeholder: Replace with actual Ewawa video URL
+        url: "https://youtube.com/shorts/FIffFWvnITk", // Placeholder: Replace with actual Ewawa video URL
         title: "Ewawa Hair - Product Showcase",
         description: "Highlighting the quality and benefits of Ewawa Hair care products.",
       },
@@ -168,21 +168,21 @@ export const companies = [
   {
     id: "nib",
     name: "Nib chocolate",
-    logo: Nib, // Assuming you have nib.png in your assets folder
+    logo: Nib, 
     description: "Developed engaging promotional content for Nib chocolate, highlighting their services and customer-centric approach.",
     videos: [
       {
-        url: "https://youtube.com/shorts/Bxo1dMRSOrg", // Placeholder: Replace with actual Nib video URL
+        url: "https://youtube.com/shorts/XS-tK8uVlUk", // Placeholder: Replace with actual Nib video URL
         title: "Nib chocolate",
         description: "Showcasing Nib chocolate seamless experience.",
       },
       {
-        url: "https://youtube.com/shorts/8NklVZfdpHk", // Placeholder: Replace with actual Nib video URL
+        url: "https://youtube.com/shorts/RIE0jSRx5vs", // Placeholder: Replace with actual Nib video URL
         title: "Nib chocolate",
         description: "Highlighting Nib chocolate commitment to customer satisfaction.",
       },
       {
-        url: "https://youtube.com/shorts/BSSUXCCkOw0", // Placeholder: Replace with actual Nib video URL
+        url: "https://youtube.com/shorts/zkmtqs0SrBc", // Placeholder: Replace with actual Nib video URL
         title: "Nib chocolate",
         description: "Highlighting Nib chocolate commitment to customer satisfaction.",
       },
