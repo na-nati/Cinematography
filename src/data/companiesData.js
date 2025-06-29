@@ -187,7 +187,7 @@ export const companies = [
         description: "Highlighting Nib chocolate commitment to customer satisfaction.",
       },
       {
-        url: "https://youtube.com/shorts/OQbUSsu2MS0", // Placeholder: Replace with actual Nib video URL
+        url: "https://youtube.com/shorts/T4SSVUjC5f4", // Placeholder: Replace with actual Nib video URL
         title: "Nib chocolate",
         description: "Showcasing Nib chocolate seamless experience.",
       },
