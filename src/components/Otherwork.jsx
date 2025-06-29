@@ -520,11 +520,11 @@ const Otherwork = () => {
                 toggleFullscreen(index); // Trigger fullscreen immediately on touch start
             }}
             className={`
-                fullscreen-button absolute z-20 bg-black/60 text-white rounded-full
+                fullscreen-button absolute z-30 bg-black/60 text-white rounded-full
                 flex items-center justify-center
                 ${isDesktop 
                     ? 'p-2 sm:p-3 bottom-5 right-5' 
-                    : 'p-3 bottom-20 right-5 w-12 h-12'
+                    : 'p-3 bottom-30 right-5 w-12 h-12'
                 }
                 shadow-lg hover:bg-purple-700
             `}
