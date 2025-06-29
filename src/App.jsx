@@ -38,9 +38,7 @@ const MainPortfolioPage = ({ heroButtonRef }) => {
         <Otherwork />
       </section>
 
-      <section id="outro-animations">
-        <OutroAnimations />
-      </section>
+      
 
       <section id="about">
         <About />
