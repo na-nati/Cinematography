@@ -506,7 +506,7 @@ const Otherwork = () => {
                                                     )}
                                                 </AnimatePresence>
 
-                                                {/* FULLSCREEN Button */}
+     {/* FULLSCREEN Button */}
 <AnimatePresence>
     {isMiddle && (showFullscreenButton || isFullscreen) && (
         <motion.button
@@ -515,6 +515,10 @@ const Otherwork = () => {
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.3 }}
             onClick={() => toggleFullscreen(index)}
+            onTouchStart={(e) => {
+                e.stopPropagation(); // Prevent touch from bubbling to parent
+                toggleFullscreen(index); // Trigger fullscreen immediately on touch start
+            }}
             className={`
                 fullscreen-button absolute z-20 bg-black/60 text-white rounded-full
                 flex items-center justify-center
