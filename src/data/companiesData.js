@@ -41,24 +41,24 @@ export const companies = [
     description: "Collaborated on their captivating visual campaigns, showcasing the unique design and quality of their furniture. Explore their collection.",
     videos:[
       {
-        "url": "https://youtube.com/shorts/S0L_A5uJzFs",
-        "title": "QRS - Living Room Collection",
-        "description": "Showcasing the exquisite craftsmanship and contemporary design of QRS Furniture's living room collection, this video highlights the aesthetic and functional elegance suitable for high-end residential and commercial spaces."
+        url: "https://youtube.com/shorts/S0L_A5uJzFs",
+        title: "QRS - Living Room Collection",
+        description: "Showcasing QRS living room furniture; highlights craftsmanship and contemporary design."
       },
       {
-        "url": "https://youtube.com/shorts/oWuwQt1DTxQ",
-        "title": "QRS - Bedroom & Office Furniture",
-        "description": "A comprehensive visual presentation of QRS's bedroom and office furniture lines, emphasizing comfort, ergonomic design, and sophisticated style for modern living and working environments."
+        url: "https://youtube.com/shorts/oWuwQt1DTxQ",
+        title: "QRS - Bedroom & Office Furniture",
+        description: "Visual presentation of QRS bedroom and office lines; emphasizes comfort and ergonomic style."
       },
       {
-        "url": "https://youtube.com/shorts/GsjzwW-CX7M",
-        "title": "QRS - Living Room & Office Furniture",
-        "description": "This video captures the refined details and superior quality of QRS's bedroom and office furniture, illustrating how each piece contributes to creating inviting and productive spaces."
+        url: "https://youtube.com/shorts/GsjzwW-CX7M",
+        title: "QRS - Living Room & Office Furniture",
+        description: "Capturing refined details and superior quality of QRS furniture for inviting spaces."
       },
       {
-        "url": "https://youtube.com/shorts/pWo9U-Ho5t8",
-        "title": "QRS - Bedroom  Collection",
-        "description": "An immersive visual experience featuring QRS Furniture's living room collection, designed to convey the luxurious textures, innovative designs, and inviting ambiance of each piece."
+        url: "https://youtube.com/shorts/pWo9U-Ho5t8",
+        title: "QRS - Bedroom Collection",
+        description: "Immersive visual experience of QRS bedroom collection; conveying luxury and innovative design."
       }
     ],
   },
@@ -121,29 +121,29 @@ export const companies = [
     description: "Developed vibrant and stylish video advertisements that perfectly capture the essence of their modern hair care brand. Discover their beauty.",
     videos: [
       {
-        url: "https://youtube.com/shorts/qSvmrjAqOZQ", // Placeholder: Replace with actual Ewawa video URL
+        url: "https://youtube.com/shorts/qSvmrjAqOZQ", 
         title: "Ewawa Hair - Style Transformations",
-        description: "Vibrant and stylish video showcasing stunning hair transformations for Ewawa Hair.",
+        description: "Dynamic visuals of hair transformations and diverse styling.",
       },
       {
-        url: "https://youtube.com/shorts/wjfdktlPd6U", // Placeholder: Replace with actual Ewawa video URL
+        url: "https://youtube.com/shorts/wjfdktlPd6U", 
         title: "Ewawa Hair - Product Showcase",
-        description: "Highlighting the quality and benefits of Ewawa Hair care products.",
+        description: "Engaging product showcase; highlights hair quality and texture.",
       },
       {
-        url: "https://youtube.com/shorts/esvcbplIevE", // Placeholder: Replace with actual Ewawa video URL
+        url: "https://youtube.com/shorts/esvcbplIevE", 
         title: "Ewawa Hair - Product Showcase",
-        description: "Highlighting the quality and benefits of Ewawa Hair care products.",
+        description: "Premium product visuals; emphasizes quality and versatility.",
       },
       {
-        url: "https://youtube.com/shorts/lf7KMhetmoo", // Placeholder: Replace with actual Ewawa video URL
+        url: "https://youtube.com/shorts/lf7KMhetmoo", 
         title: "Ewawa Hair - Product Showcase",
-        description: "Highlighting the quality and benefits of Ewawa Hair care products.",
+        description: "Cinematic focus on product features and luxurious appeal.",
       },
       {
-        url: "https://youtube.com/shorts/FIffFWvnITk", // Placeholder: Replace with actual Ewawa video URL
+        url: "https://youtube.com/shorts/FIffFWvnITk",
         title: "Ewawa Hair - Product Showcase",
-        description: "Highlighting the quality and benefits of Ewawa Hair care products.",
+        description: "Aesthetic product display; highlights quality and potential.",
       },
     ],
   },
@@ -215,12 +215,12 @@ export const companies = [
         description: "Vibrant visuals for A One skincare.",
       },
       {
-        url: "https://youtube.com/shorts/kBeeGSM57dw", // Placeholder: Replace with actual A One video URL
+        url: "https://youtube.com/shorts/0Olm-u71toc", // Placeholder: Replace with actual A One video URL
         title: "A One skincare",
         description: "A narrative piece on the inspiration behind A One skincare.",
       },
       {
-        url: "https://youtube.com/shorts/Ha3I6F94yDg", // Placeholder: Replace with actual A One video URL
+        url: "https://youtube.com/shorts/QPIU9IQWaEg", // Placeholder: Replace with actual A One video URL
         title: "A One skincare",
         description: "A narrative piece on the inspiration behind A One skincare.",
       },

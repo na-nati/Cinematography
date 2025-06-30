@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaChevronLeft, FaChevronRight, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
-import { Maximize, Minimize } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Maximize, Minimize } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import ReactPlayer from "react-player";
 
 import { companies } from '../data/companiesData';
-
-const LazyReactPlayer = lazy(() => import("react-player"));
 
 const Otherwork = () => {
     const navigate = useNavigate();
@@ -39,10 +38,11 @@ const Otherwork = () => {
     useEffect(() => {
         const observer = new IntersectionObserver(
             ([entry]) => {
-                setIsSectionVisible(entry.isIntersecting);
+                const isVisible = entry.isIntersecting;
+                setIsSectionVisible(isVisible);
                 
-                if (!entry.isIntersecting) {
-                    // Pause and mute all videos when section leaves viewport
+                if (!isVisible && !document.fullscreenElement) {
+                    // Pause and mute all videos when section leaves viewport and not in fullscreen
                     videoRefs.current.forEach((player, index) => {
                         if (player && player.pause) {
                             try {
@@ -151,7 +151,16 @@ const Otherwork = () => {
             // Enter fullscreen
             const playerWrapper = playerInstance.wrapper;
             
-            // Mobile fullscreen workaround
+            // Play video using the internal player
+            try {
+                const internalPlayer = playerInstance.getInternalPlayer();
+                if (internalPlayer && typeof internalPlayer.play === 'function') {
+                    internalPlayer.play();
+                }
+            } catch (error) {
+                console.warn("Error playing video before fullscreen:", error);
+            }
+            
             if (playerWrapper.requestFullscreen) {
                 playerWrapper.requestFullscreen().catch(console.error);
             } else if (playerWrapper.webkitRequestFullscreen) { /* Safari */
@@ -476,55 +485,53 @@ const Otherwork = () => {
                                                 onTouchMove={isMiddle ? handleVideoTouchMove : undefined}
                                                 onTouchEnd={isMiddle ? handleVideoTouchEnd : undefined}
                                             >
-                                                <Suspense fallback={<div className="absolute inset-0 flex items-center justify-center bg-gray-900 text-white">Loading Video...</div>}>
-                                                    <LazyReactPlayer
-                                                        ref={node => setVideoPlayerRef(node, index)}
-                                                        url={video.url}
-                                                        playing={isMiddle && isSectionVisible && !isFullscreen}
-                                                        loop
-                                                        volume={mutedStates[index] ? 0 : 1}
-                                                        controls={false}
-                                                        width="100%"
-                                                        height="100%"
-                                                        light={!isMiddle}
-                                                        playIcon={
-                                                            <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl">
-                                                                <FaChevronRight size={40} className="text-white" />
-                                                            </div>
+                                                <ReactPlayer
+                                                    ref={node => setVideoPlayerRef(node, index)}
+                                                    url={video.url}
+                                                    playing={isMiddle && (isSectionVisible || isFullscreen)}
+                                                    loop
+                                                    volume={mutedStates[index] ? 0 : 1}
+                                                    controls={false}
+                                                    width="100%"
+                                                    height="100%"
+                                                    light={!isMiddle}
+                                                    playIcon={
+                                                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl">
+                                                            <FaChevronRight size={40} className="text-white" />
+                                                        </div>
+                                                    }
+                                                    onReady={() => {
+                                                        setVideoReadiness(prev => ({ ...prev, [index]: true }));
+                                                        // Mobile workaround: Start muted to prevent auto-play issues
+                                                        if (!isDesktop) {
+                                                            try {
+                                                                const internalPlayer = videoRefs.current.get(index)?.getInternalPlayer();
+                                                                if (internalPlayer) {
+                                                                    internalPlayer.muted = true;
+                                                                }
+                                                            } catch (error) {
+                                                                console.warn("Mobile mute workaround failed:", error);
+                                                            }
                                                         }
-                                                        onReady={() => {
-                                                            setVideoReadiness(prev => ({ ...prev, [index]: true }));
-                                                            // Mobile workaround: Start muted to prevent auto-play issues
-                                                            if (!isDesktop) {
-                                                                try {
-                                                                    const internalPlayer = videoRefs.current.get(index)?.getInternalPlayer();
-                                                                    if (internalPlayer) {
-                                                                        internalPlayer.muted = true;
-                                                                    }
-                                                                } catch (error) {
-                                                                    console.warn("Mobile mute workaround failed:", error);
-                                                                }
+                                                    }}
+                                                    onPlay={handleVideoPlay}
+                                                    onPause={handleVideoPause}
+                                                    playsinline
+                                                    style={isMiddle ? { pointerEvents: 'none' } : {}}
+                                                    config={{
+                                                        vimeo: { playerOptions: { dnt: true, byline: false, portrait: false, title: false }},
+                                                        youtube: {
+                                                            playerVars: {
+                                                                disablekb: 1,
+                                                                showinfo: 0,
+                                                                rel: 0,
+                                                                controls: 0,
+                                                                modestbranding: 1,
+                                                                iv_load_policy: 3,
                                                             }
-                                                        }}
-                                                        onPlay={handleVideoPlay}
-                                                        onPause={handleVideoPause}
-                                                        playsinline
-                                                        style={isMiddle ? { pointerEvents: 'none' } : {}}
-                                                        config={{
-                                                            vimeo: { playerOptions: { dnt: true, byline: false, portrait: false, title: false }},
-                                                            youtube: {
-                                                                playerVars: {
-                                                                    disablekb: 1,
-                                                                    showinfo: 0,
-                                                                    rel: 0,
-                                                                    controls: 0,
-                                                                    modestbranding: 1,
-                                                                    iv_load_policy: 3,
-                                                                }
-                                                            }
-                                                        }}
-                                                    />
-                                                </Suspense>
+                                                        }
+                                                    }}
+                                                />
 
                                                 {/* VOLUME Controls */}
                                                 <AnimatePresence>
@@ -567,8 +574,8 @@ const Otherwork = () => {
                                                                 fullscreen-button absolute z-30 bg-black/60 text-white rounded-full
                                                                 flex items-center justify-center
                                                                 ${isDesktop 
-                                                                    ? 'p-2 sm:p-3 top-4 right-4 w-10 h-10' 
-                                                                    : 'p-3 top-4 right-4 w-12 h-12'
+                                                                    ? 'p-2 sm:p-3 top-10 left-80 w-10 h-10' 
+                                                                    : 'p-3 top-3 left-4 w-12 h-12'
                                                                 }
                                                                 shadow-lg hover:bg-purple-700
                                                             `}
