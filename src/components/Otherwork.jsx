@@ -42,7 +42,6 @@ const Otherwork = () => {
                 setIsSectionVisible(isVisible);
                 
                 if (!isVisible && !document.fullscreenElement) {
-                    // Pause and mute all videos when section leaves viewport and not in fullscreen
                     videoRefs.current.forEach((player, index) => {
                         if (player && player.pause) {
                             try {
@@ -119,20 +118,25 @@ const Otherwork = () => {
             setIsFullscreen(isFullscreenNow);
             
             if (!isFullscreenNow && fullscreenVideoRef.current) {
-                // Restore normal state when exiting fullscreen
                 fullscreenVideoRef.current = null;
             }
         };
         
         document.addEventListener('fullscreenchange', handleFullscreenChange);
-        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange); // Safari
+        document.addEventListener('msfullscreenchange', handleFullscreenChange); // IE/Edge
+        
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+            document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.removeEventListener('msfullscreenchange', handleFullscreenChange);
+        };
     }, []);
 
     const setVideoPlayerRef = useCallback((node, index) => {
         if (node) {
             videoRefs.current.set(index, node);
             if (fullscreenVideoRef.current === index) {
-                // If this is the fullscreen video, ensure it's visible
                 node.wrapper.style.display = 'block';
             }
         } else {
@@ -144,16 +148,18 @@ const Otherwork = () => {
         const playerInstance = videoRefs.current.get(index);
         if (!playerInstance) return;
 
-        // Set as the active fullscreen video
         fullscreenVideoRef.current = index;
         
-        if (!document.fullscreenElement) {
-            // Enter fullscreen
-            const playerWrapper = playerInstance.wrapper;
+        if (!document.fullscreenElement && 
+            !document.webkitFullscreenElement && 
+            !document.mozFullScreenElement && 
+            !document.msFullscreenElement) {
             
-            // Play video using the internal player
+            const playerWrapper = playerInstance.wrapper;
+            const internalPlayer = playerInstance.getInternalPlayer();
+            
+            // Mobile browsers require playing the video before entering fullscreen
             try {
-                const internalPlayer = playerInstance.getInternalPlayer();
                 if (internalPlayer && typeof internalPlayer.play === 'function') {
                     internalPlayer.play();
                 }
@@ -161,20 +167,28 @@ const Otherwork = () => {
                 console.warn("Error playing video before fullscreen:", error);
             }
             
+            // Use the appropriate fullscreen method for the browser
             if (playerWrapper.requestFullscreen) {
                 playerWrapper.requestFullscreen().catch(console.error);
-            } else if (playerWrapper.webkitRequestFullscreen) { /* Safari */
+            } else if (playerWrapper.webkitRequestFullscreen) { 
                 playerWrapper.webkitRequestFullscreen();
-            } else if (playerWrapper.msRequestFullscreen) { /* IE11 */
+            } else if (playerWrapper.mozRequestFullScreen) { 
+                playerWrapper.mozRequestFullScreen();
+            } else if (playerWrapper.msRequestFullscreen) { 
                 playerWrapper.msRequestFullscreen();
+            } else if (internalPlayer && internalPlayer.requestFullscreen) {
+                internalPlayer.requestFullscreen();
+            } else if (internalPlayer && internalPlayer.webkitEnterFullscreen) {
+                internalPlayer.webkitEnterFullscreen(); // iOS Safari
             }
         } else {
-            // Exit fullscreen
             if (document.exitFullscreen) {
                 document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) { /* Safari */
+            } else if (document.webkitExitFullscreen) {
                 document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) { /* IE11 */
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
                 document.msExitFullscreen();
             }
         }
@@ -183,9 +197,19 @@ const Otherwork = () => {
     const handleNavigation = useCallback((direction) => {
         if (!selectedCompany?.videos?.length) return;
 
-        // Exit fullscreen when navigating
-        if (document.fullscreenElement) {
-            if (document.exitFullscreen) document.exitFullscreen();
+        if (document.fullscreenElement || 
+            document.webkitFullscreenElement || 
+            document.mozFullScreenElement || 
+            document.msFullscreenElement) {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
             setIsFullscreen(false);
         }
 
@@ -217,7 +241,6 @@ const Otherwork = () => {
             if (player) {
                 try {
                     if (index === current && isSectionVisible) {
-                        // For mobile, we need to play with muted audio first
                         if (player.getInternalPlayer() && !isDesktop) {
                             player.getInternalPlayer().muted = true;
                         }
@@ -260,7 +283,6 @@ const Otherwork = () => {
         setMutedStates(prev => {
             const newMuted = !prev[currentRef.current];
             
-            // Special handling for mobile browsers
             if (!isDesktop && videoRefs.current.get(currentRef.current)) {
                 try {
                     const internalPlayer = videoRefs.current.get(currentRef.current).getInternalPlayer();
@@ -502,7 +524,6 @@ const Otherwork = () => {
                                                     }
                                                     onReady={() => {
                                                         setVideoReadiness(prev => ({ ...prev, [index]: true }));
-                                                        // Mobile workaround: Start muted to prevent auto-play issues
                                                         if (!isDesktop) {
                                                             try {
                                                                 const internalPlayer = videoRefs.current.get(index)?.getInternalPlayer();
@@ -565,8 +586,7 @@ const Otherwork = () => {
                                                             animate={{ opacity: 1, y: 0 }}
                                                             exit={{ opacity: 0, y: 20 }}
                                                             transition={{ duration: 0.3 }}
-                                                            onClick={() => toggleFullscreen(index)}
-                                                            onTouchStart={(e) => {
+                                                            onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 toggleFullscreen(index);
                                                             }}

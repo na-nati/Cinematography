@@ -205,7 +205,7 @@ const About = () => {
                         <div className="mt-8 flex flex-col sm:flex-row justify-start items-start space-y-4 sm:space-y-0 sm:space-x-8 w-full">
                             {[
                                 { icon: User2, label: "Clients", desc: "Happy Customers", isAnimated: true },
-                                { icon: Clock, label: "4+ Years", desc: "Experience", isAnimated: false },
+                                { icon: Clock, label: "2+ Years", desc: "Experience", isAnimated: false },
                             ].map((stat, index) => (
                                 <motion.div
                                     key={index}
