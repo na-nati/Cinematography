@@ -23,12 +23,22 @@ export const companies = [
         description: "Capturing the essence of adventure with stunning short clips.",
       },
       {
+        url: "https://youtube.com/shorts/BRT_DkyW3VU", // Replace with actual Orbit videos
+        title: "Orbit - Adventure Series",
+        description: "A dynamic visual narrative showcasing our recent client collaboration with Orbit, exploring intricate patterns and fluid movements to represent innovation.",
+      },
+      {
         url: "https://vimeo.com/1092080900/e3b4de5129?share=copy", // Replace with actual Orbit videos
         title: "Orbit - Adventure Series",
         description: "A dynamic visual narrative showcasing our recent client collaboration with Orbit, exploring intricate patterns and fluid movements to represent innovation.",
       },
       {
-        url: "https://youtube.com/shorts/v3He5TboCO0", // Placeholder: Replace with actual Orbit video URL
+        url: "https://youtube.com/shorts/IlgdAsiSxKk", // Placeholder: Replace with actual Orbit video URL
+        title: "Orbit - Cultural Journeys",
+        description: "Exploring rich cultures and historical sites around the world.",
+      },
+      {
+        url: "https://youtube.com/shorts/pjCxC3R1gdc", // Placeholder: Replace with actual Orbit video URL
         title: "Orbit - Cultural Journeys",
         description: "Exploring rich cultures and historical sites around the world.",
       },
