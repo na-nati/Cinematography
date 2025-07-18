@@ -127,7 +127,7 @@ const Footer = () => {
               </p>
               <p className="flex items-center justify-center md:justify-start">
                 <Monitor size={16} className="mr-2 text-purple-400 flex-shrink-0" />
-                <a href="https://cinematlographer-portfolio.netlify.app/" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors">cinematlographer-portfolio.netlify.app</a> {/* Replace with your website */}
+                <a href="https://bernabas-portfolio.netlify.app/" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors">bernabas-portfolio.netlify.app</a> {/* Replace with your website */}
               </p>
             </address>
           </div>
