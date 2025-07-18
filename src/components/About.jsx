@@ -187,8 +187,8 @@ const About = () => {
                                 My Journey into Cinematography
                             </h3>
                             <p className="mb-4 text-lg md:text-xl leading-relaxed" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
-                                I am a passionate cinematographer with over a decade of experience in the industry.
-                                From a background in editing to mastering the art of lighting and camera work, I have dedicated my career to telling compelling visual stories.
+                                I am a passionate cinematographer with 2 years of experience in the industry.
+With a background in editing and a strong focus on mastering lighting and camera work, I am dedicated to telling compelling visual stories through the lens.
                             </p>
 
                             <h3 className="text-xl md:text-2xl font-bold text-purple-300 mb-4 mt-6" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
